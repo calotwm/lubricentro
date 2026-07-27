@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas import BulkPriceUpdate
+from app.schemas import BulkPriceUpdate, ExcelImportResult
 from app.services import prices as price_service
 
 router = APIRouter(prefix="/prices", tags=["prices"])
@@ -35,3 +35,28 @@ async def bulk_price_update(
         count = await price_service.bulk_update_by_category(db, data.category_id, data.percentage)
 
     return {"updated": count, "percentage": data.percentage}
+
+
+@router.post("/import-excel", response_model=ExcelImportResult)
+async def import_excel_prices(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Import prices (and optionally new products) from an Excel (.xlsx) file.
+
+    Columns recognised (case-insensitive):
+      SKU/Codigo, Nombre/Name, Marca/Brand, Categoria/Category,
+      Precio Costo/Costo/Cost, Precio Venta/Venta/Price
+
+    Behaviour per row:
+      - SKU matches existing product → update cost_price / selling_price
+      - SKU not found (or no SKU column) → create new product using Nombre
+    """
+    if not file.filename or not file.filename.lower().endswith(".xlsx"):
+        raise HTTPException(status_code=400, detail="Solo se aceptan archivos .xlsx")
+
+    contents = await file.read()
+    from app.services.excel_import import import_from_excel
+    result = await import_from_excel(db, contents)
+    return result

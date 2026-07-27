@@ -187,3 +187,12 @@ class ProfitMarginResponse(BaseModel):
     total_cost: Decimal
     gross_profit: Decimal
     margin_percentage: Decimal
+
+
+# ── Excel Import ──────────────────────────────────────────────────────────────
+
+class ExcelImportResult(BaseModel):
+    updated: int
+    created: int
+    skipped: int
+    errors: List[str]

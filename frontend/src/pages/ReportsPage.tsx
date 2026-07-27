@@ -7,11 +7,10 @@ import {
 } from "../hooks/useReports";
 import AlertBanner from "../components/ui/AlertBanner";
 
+import { formatARS } from "../utils/currency";
+
 function formatCurrency(value: string): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-  }).format(parseFloat(value));
+  return formatARS(value);
 }
 
 type Tab = "best-sellers" | "reorder" | "profit";

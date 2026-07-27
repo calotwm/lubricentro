@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useProducts } from "../../hooks/useProducts";
 import { useCreateSale, type SaleItemPayload } from "../../hooks/useSales";
 import AlertBanner from "../../components/ui/AlertBanner";
+import { formatARS } from "../../utils/currency";
 
 interface CartItem extends SaleItemPayload {
   product_name: string;
@@ -123,7 +124,7 @@ export default function SaleFormPage() {
               >
                 <span className="font-medium text-white">{p.name}</span>
                 <span className="text-[#a0a0a0]">
-                  Stock: {p.current_stock} | ${p.selling_price ? parseFloat(p.selling_price).toFixed(2) : "0.00"}
+                  Stock: {p.current_stock} | {formatARS(p.selling_price ?? 0)}
                 </span>
               </button>
             ))}
@@ -168,10 +169,10 @@ export default function SaleFormPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3 text-white">
-                    ${parseFloat(item.unit_price).toFixed(2)}
+                    {formatARS(item.unit_price)}
                   </td>
                   <td className="px-4 py-3 font-medium text-white">
-                    ${(parseFloat(item.unit_price) * item.quantity).toFixed(2)}
+                    {formatARS(parseFloat(item.unit_price) * item.quantity)}
                   </td>
                   <td className="px-4 py-3">
                     <button
@@ -209,7 +210,7 @@ export default function SaleFormPage() {
           </div>
           <div className="ml-auto text-right">
             <p className="text-sm text-[#a0a0a0]">Total</p>
-            <p className="text-2xl font-bold text-white">${total.toFixed(2)}</p>
+            <p className="text-2xl font-bold text-white">{formatARS(total)}</p>
           </div>
           <button
             type="submit"

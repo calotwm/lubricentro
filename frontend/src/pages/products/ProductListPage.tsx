@@ -11,6 +11,7 @@ import {
   type Product,
 } from "../../hooks/useProducts";
 import { useCreateMovement } from "../../hooks/useStock";
+import { formatARS } from "../../utils/currency";
 
 export default function ProductListPage() {
   const [search, setSearch] = useState("");
@@ -93,9 +94,8 @@ export default function ProductListPage() {
     },
     {
       key: "selling_price",
-      header: "Precio",
-      render: (r) =>
-        r.selling_price ? `$${parseFloat(r.selling_price).toFixed(2)}` : "\u2014",
+      header: "Precio (ARS)",
+      render: (r) => formatARS(r.selling_price),
     },
   ];
 

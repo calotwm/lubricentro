@@ -2,15 +2,7 @@ import { useDashboard } from "../hooks/useReports";
 import { useStockMovements } from "../hooks/useStock";
 import KpiCard from "../components/ui/KpiCard";
 import AlertBanner from "../components/ui/AlertBanner";
-
-function formatCurrency(value: string | number): string {
-  const num = typeof value === "string" ? parseFloat(value) : value;
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(num);
-}
+import { formatARS } from "../utils/currency";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("es-AR", {
@@ -53,7 +45,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           label="Valor del Inventario"
-          value={formatCurrency(dashboard.total_inventory_value)}
+          value={formatARS(dashboard.total_inventory_value)}
           subtitle="Total a costo"
         />
         <KpiCard
@@ -63,12 +55,12 @@ export default function DashboardPage() {
         />
         <KpiCard
           label="Ventas del Dia"
-          value={formatCurrency(dashboard.today_sales_total)}
+          value={formatARS(dashboard.today_sales_total)}
           subtitle="Hoy"
         />
         <KpiCard
           label="Ventas del Mes"
-          value={formatCurrency(dashboard.month_sales_total)}
+          value={formatARS(dashboard.month_sales_total)}
           subtitle="Mes en curso"
         />
       </div>

@@ -13,11 +13,10 @@ function formatDate(iso: string): string {
   });
 }
 
+import { formatARS } from "../../utils/currency";
+
 function formatCurrency(value: string): string {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "USD",
-  }).format(parseFloat(value));
+  return formatARS(value);
 }
 
 const paymentLabels: Record<string, string> = {
