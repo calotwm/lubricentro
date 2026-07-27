@@ -5,8 +5,6 @@ import ProductListPage from "./pages/products/ProductListPage";
 import ProductFormPage from "./pages/products/ProductFormPage";
 import StockPage from "./pages/stock/StockPage";
 import ReceivePage from "./pages/stock/ReceivePage";
-import SalesListPage from "./pages/sales/SalesListPage";
-import SaleFormPage from "./pages/sales/SaleFormPage";
 import PricesPage from "./pages/PricesPage";
 import ReportsPage from "./pages/ReportsPage";
 
@@ -21,8 +19,6 @@ export default function App() {
         <Route path="/products/:id/edit" element={<ProductFormPage />} />
         <Route path="/stock" element={<StockPage />} />
         <Route path="/stock/receive" element={<ReceivePage />} />
-        <Route path="/sales" element={<SalesListPage />} />
-        <Route path="/sales/new" element={<SaleFormPage />} />
         <Route path="/prices" element={<PricesPage />} />
         <Route path="/reports" element={<ReportsPage />} />
       </Route>

@@ -4,7 +4,6 @@ const links = [
   { to: "/dashboard", label: "Panel Principal" },
   { to: "/products", label: "Productos" },
   { to: "/stock", label: "Stock" },
-  { to: "/sales", label: "Ventas" },
   { to: "/prices", label: "Precios" },
   { to: "/reports", label: "Reportes" },
 ];
