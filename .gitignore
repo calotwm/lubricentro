@@ -27,3 +27,9 @@ Thumbs.db
 
 # Railway
 .railway/
+
+# Temp export files
+backend/batch_*.xlsx
+backend/export_*.xlsx
+backend/test_*.xlsx
+scripts/export_*.xlsx
