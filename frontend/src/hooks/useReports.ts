@@ -84,26 +84,29 @@ export function useBulkPriceUpdate() {
   });
 }
 
-export function useUploadExcel() {
+export interface ExcelImportResult {
+  updated: number;
+  created: number;
+  skipped: number;
+  errors: string[];
+}
+
+export function useImportExcel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (file: File) => {
+    mutationFn: async (file: File): Promise<ExcelImportResult> => {
       const form = new FormData();
       form.append("file", file);
-      const res = await fetch(`${api.baseUrl}/prices/upload-excel`, {
+      const res = await fetch("/api/prices/import-excel", {
         method: "POST",
         body: form,
       });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: "Error al procesar el archivo" }));
-        throw new Error(err.detail || "Error al procesar el archivo");
+        const body = await res.json().catch(() => ({}));
+        const msg = (body as { detail?: string }).detail ?? `Error ${res.status}`;
+        throw new Error(msg);
       }
-      return res.json() as Promise<{
-        actualizados: number;
-        no_encontrados: number;
-        errores: string[];
-        detalle: { producto: string; precio_anterior: string; precio_nuevo: string }[];
-      }>;
+      return res.json();
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });

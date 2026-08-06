@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useCategories, useBrands, useProducts } from "../hooks/useProducts";
-import { useBulkPriceUpdate, useUploadExcel } from "../hooks/useReports";
+import { useBulkPriceUpdate, useImportExcel } from "../hooks/useReports";
 import AlertBanner from "../components/ui/AlertBanner";
 
 export default function PricesPage() {
@@ -189,17 +189,13 @@ export default function PricesPage() {
 function ExcelUploadSection() {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<{
-    actualizados: number;
-    no_encontrados: number;
-    errores: string[];
-    detalle: {
-      producto: string;
-      precio_anterior: string;
-      precio_nuevo: string;
-    }[];
+    updated: number;
+    created: number;
+    skipped: number;
+    errors: string[];
   } | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const upload = useUploadExcel();
+  const upload = useImportExcel();
 
   const handleUpload = () => {
     if (!file) return;
@@ -235,35 +231,28 @@ function ExcelUploadSection() {
 
       {result && (
         <div className="mb-4 space-y-2 rounded-[12px] bg-[#0a0a0a] p-4">
-          <div className="flex gap-4 text-sm">
-            <span className="text-[#22c55e]">
-              {result.actualizados} actualizados
-            </span>
-            {result.no_encontrados > 0 && (
+          <div className="flex flex-wrap gap-4 text-sm">
+            {result.updated > 0 && (
+              <span className="text-[#22c55e]">
+                {result.updated} actualizados
+              </span>
+            )}
+            {result.created > 0 && (
+              <span className="text-white">{result.created} creados</span>
+            )}
+            {result.skipped > 0 && (
               <span className="text-[#eab308]">
-                {result.no_encontrados} no encontrados
+                {result.skipped} omitidos
               </span>
             )}
           </div>
-          {result.errores.length > 0 && (
+          {result.errors.length > 0 && (
             <div className="text-xs text-[#ef4444]">
-              {result.errores.map((e, i) => (
+              {result.errors.slice(0, 5).map((e, i) => (
                 <p key={i}>{e}</p>
               ))}
-            </div>
-          )}
-          {result.detalle.length > 0 && (
-            <div className="max-h-40 overflow-y-auto text-xs text-[rgba(255,255,255,0.72)]">
-              {result.detalle.slice(0, 10).map((d, i) => (
-                <p key={i}>
-                  {d.producto}: ${d.precio_anterior}{" "}
-                  <span className="text-white">${d.precio_nuevo}</span>
-                </p>
-              ))}
-              {result.detalle.length > 10 && (
-                <p className="text-[rgba(255,255,255,0.28)]">
-                  ... y {result.detalle.length - 10} mas
-                </p>
+              {result.errors.length > 5 && (
+                <p>... y {result.errors.length - 5} mas</p>
               )}
             </div>
           )}

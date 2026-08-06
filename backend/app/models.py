@@ -84,10 +84,10 @@ class Product(Base):
     specification: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     unit: Mapped[str] = mapped_column(String(20), default="unit", nullable=False)
     cost_price: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(10, 2), nullable=True
+        Numeric(15, 2), nullable=True
     )
     selling_price: Mapped[Optional[Decimal]] = mapped_column(
-        Numeric(10, 2), nullable=True
+        Numeric(15, 2), nullable=True
     )
     current_stock: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     min_stock: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -145,7 +145,7 @@ class Sale(Base):
     __tablename__ = "sales"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    total: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
+    total: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
     payment_method: Mapped[str] = mapped_column(String(50), nullable=False)
     notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
