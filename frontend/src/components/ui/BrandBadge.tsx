@@ -96,18 +96,18 @@ export default function BrandBadge({ name, size = "sm" }: BrandBadgeProps) {
   const textSize = size === "md" ? "text-sm" : "text-xs";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="group flex items-center gap-2">
       {showLogo ? (
         <img
           src={logoUrl}
           alt={name}
           loading="lazy"
           onError={() => setImgError(true)}
-          className={`${size === "md" ? "h-8 w-8" : "h-5 w-5"} rounded-full object-cover`}
+          className={`${size === "md" ? "h-8 w-8" : "h-5 w-5"} rounded-full object-cover transition-transform duration-150 group-hover:scale-110`}
         />
       ) : (
         <span
-          className={`${badgeSize} flex shrink-0 items-center justify-center rounded-full font-semibold`}
+          className={`${badgeSize} flex shrink-0 items-center justify-center rounded-full font-semibold transition-transform duration-150 group-hover:scale-110`}
           style={{ backgroundColor: colors.bg, color: colors.text }}
         >
           {initials}

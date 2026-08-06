@@ -27,10 +27,10 @@ export default function Sidebar() {
             to={link.to}
             end={link.to === "/dashboard"}
             className={({ isActive }) =>
-              `flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium transition-colors ${
+              `flex items-center gap-3 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
                 isActive
                   ? "bg-[#dc2626] text-white"
-                  : "text-[rgba(255,255,255,0.72)] hover:bg-[#16181a] hover:text-white"
+                  : "text-[rgba(255,255,255,0.72)] hover:bg-white/5 hover:text-white"
               }`
             }
           >

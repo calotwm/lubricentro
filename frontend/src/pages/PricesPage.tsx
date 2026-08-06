@@ -84,10 +84,10 @@ export default function PricesPage() {
                 setFilterType("brand");
                 setSelectedId("");
               }}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
                 filterType === "brand"
                   ? "bg-[#dc2626] text-white"
-                  : "border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.05)]"
+                  : "border border-[rgba(255,255,255,0.15)] text-white hover:bg-white/10 hover:border-white/30"
               }`}
             >
               Por Marca
@@ -97,10 +97,10 @@ export default function PricesPage() {
                 setFilterType("category");
                 setSelectedId("");
               }}
-              className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
                 filterType === "category"
                   ? "bg-[#dc2626] text-white"
-                  : "border border-[rgba(255,255,255,0.15)] text-white hover:bg-[rgba(255,255,255,0.05)]"
+                  : "border border-[rgba(255,255,255,0.15)] text-white hover:bg-white/10 hover:border-white/30"
               }`}
             >
               Por Categoria
@@ -173,7 +173,7 @@ export default function PricesPage() {
             disabled={
               bulkUpdate.isPending || !selectedId || !percentage
             }
-            className="w-full rounded-full bg-[#dc2626] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
+            className="w-full rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98] disabled:opacity-50"
           >
             {bulkUpdate.isPending ? "Aplicando..." : "Aplicar Actualizacion"}
           </button>
@@ -206,7 +206,7 @@ function ExcelUploadSection() {
   };
 
   const fileInputClass =
-    "w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white file:mr-3 file:rounded-full file:border-0 file:bg-[#dc2626] file:px-4 file:py-1 file:text-sm file:font-semibold file:text-white file:hover:bg-[#b91c1c]";
+    "w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white file:mr-3 file:rounded-full file:border-0 file:bg-[linear-gradient(135deg,#dc2626,#991b1b)] file:px-4 file:py-1 file:text-sm file:font-semibold file:text-white file:transition-all file:duration-200 file:hover:brightness-110";
 
   return (
     <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
@@ -273,7 +273,7 @@ function ExcelUploadSection() {
         <button
           onClick={handleUpload}
           disabled={!file || upload.isPending}
-          className="w-full rounded-full bg-[#dc2626] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
+          className="w-full rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-4 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98] disabled:opacity-50"
         >
           {upload.isPending ? "Procesando..." : "Subir y Actualizar Precios"}
         </button>

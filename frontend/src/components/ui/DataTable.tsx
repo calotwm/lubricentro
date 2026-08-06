@@ -88,7 +88,7 @@ export default function DataTable<T>({
                 <th
                   key={col.key}
                   onClick={() => handleSort(col.key)}
-                  className="cursor-pointer px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)] select-none hover:text-white"
+                  className="cursor-pointer px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)] select-none transition-colors duration-150 hover:text-white"
                 >
                   {col.header}
                   {sortKey === col.key && (
@@ -119,7 +119,7 @@ export default function DataTable<T>({
               sorted.map((row, i) => (
                 <tr
                   key={String(getVal(row, keyField))}
-                  className={`border-b border-[rgba(255,255,255,0.12)] ${i % 2 === 1 ? "bg-[rgba(255,255,255,0.02)]" : ""}`}
+                  className={`border-b border-[rgba(255,255,255,0.12)] transition-colors duration-150 hover:bg-white/[0.03] ${i % 2 === 1 ? "bg-[rgba(255,255,255,0.02)]" : ""}`}
                 >
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-3 text-white">

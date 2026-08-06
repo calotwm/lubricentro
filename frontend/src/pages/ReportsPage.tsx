@@ -60,10 +60,10 @@ export default function ReportsPage() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`rounded-full px-5 py-2 text-sm font-semibold transition-colors ${
+            className={`rounded-full px-5 py-2 text-sm font-semibold transition-all duration-200 ${
               tab === t.key
                 ? "bg-[#dc2626] text-white"
-                : "border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.72)] hover:bg-[rgba(255,255,255,0.05)] hover:text-white"
+                : "border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.72)] hover:bg-white/10 hover:border-white/30 hover:text-white"
             }`}
           >
             {t.label}
@@ -80,7 +80,7 @@ export default function ReportsPage() {
             </h2>
             <button
               onClick={handleExportCsv}
-              className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+              className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
             >
               Exportar CSV
             </button>
@@ -219,7 +219,7 @@ export default function ReportsPage() {
             <p className="text-[rgba(255,255,255,0.72)]">Cargando...</p>
           ) : profit ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">
                   Ingresos Totales
                 </p>
@@ -227,7 +227,7 @@ export default function ReportsPage() {
                   {formatCurrency(profit.total_revenue)}
                 </p>
               </div>
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">
                   Costo Total
                 </p>
@@ -235,7 +235,7 @@ export default function ReportsPage() {
                   {formatCurrency(profit.total_cost)}
                 </p>
               </div>
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">
                   Ganancia Bruta
                 </p>
@@ -243,7 +243,7 @@ export default function ReportsPage() {
                   {formatCurrency(profit.gross_profit)}
                 </p>
               </div>
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">Margen</p>
                 <p className="mt-1 text-xl font-medium tracking-tight text-[#ef4444]">
                   {parseFloat(profit.margin_percentage).toFixed(2)}%

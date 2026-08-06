@@ -148,7 +148,7 @@ export default function ProductListPage() {
         <div className="ml-auto">
           <Link
             to="/products/new"
-            className="inline-flex items-center rounded-full bg-[#dc2626] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c]"
+            className="inline-flex items-center rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98]"
           >
             Nuevo Producto
           </Link>
@@ -168,27 +168,27 @@ export default function ProductListPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => openAdjust(row, 1)}
-              className="rounded-full bg-[rgba(34,197,94,0.1)] px-2.5 py-1 text-xs font-medium text-[#22c55e] transition-colors hover:bg-[rgba(34,197,94,0.2)]"
+              className="rounded-full bg-[rgba(34,197,94,0.1)] px-2.5 py-1 text-xs font-medium text-[#22c55e] transition-all duration-200 hover:bg-[rgba(34,197,94,0.2)]"
               title="Aumentar stock"
             >
               +
             </button>
             <button
               onClick={() => openAdjust(row, -1)}
-              className="rounded-full bg-[rgba(220,38,38,0.1)] px-2.5 py-1 text-xs font-medium text-[#ef4444] transition-colors hover:bg-[rgba(220,38,38,0.2)]"
+              className="rounded-full bg-[rgba(220,38,38,0.1)] px-2.5 py-1 text-xs font-medium text-[#ef4444] transition-all duration-200 hover:bg-[rgba(220,38,38,0.2)]"
               title="Disminuir stock"
             >
               &minus;
             </button>
             <Link
               to={`/products/${row.id}/edit`}
-              className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+              className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
             >
               Editar
             </Link>
             <button
               onClick={() => handleDelete(row.id)}
-              className="rounded-full bg-[rgba(220,38,38,0.1)] px-2.5 py-1 text-xs font-medium text-[#ef4444] transition-colors hover:bg-[rgba(220,38,38,0.2)]"
+              className="rounded-full bg-[rgba(220,38,38,0.1)] px-2.5 py-1 text-xs font-medium text-[#ef4444] transition-all duration-200 hover:bg-[rgba(220,38,38,0.2)]"
             >
               Eliminar
             </button>
@@ -233,14 +233,14 @@ export default function ProductListPage() {
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setAdjustProduct(null)}
-              className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+              className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
             >
               Cancelar
             </button>
             <button
               onClick={handleAdjustSubmit}
               disabled={createMovement.isPending}
-              className="rounded-full bg-[#dc2626] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
+              className="rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98] disabled:opacity-50"
             >
               {createMovement.isPending ? "Guardando..." : "Ajustar"}
             </button>

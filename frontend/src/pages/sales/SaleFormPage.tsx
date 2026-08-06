@@ -127,7 +127,7 @@ export default function SaleFormPage() {
               <button
                 key={p.id}
                 onClick={() => addToCart(p.id)}
-                className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+                className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition-all duration-200 hover:bg-white/[0.05]"
               >
                 <span className="font-medium text-white">{p.name}</span>
                 <span className="text-[rgba(255,255,255,0.72)]">
@@ -171,7 +171,7 @@ export default function SaleFormPage() {
               {cart.map((item) => (
                 <tr
                   key={item.product_id}
-                  className="border-b border-[rgba(255,255,255,0.12)]"
+                  className="border-b border-[rgba(255,255,255,0.12)] transition-colors duration-150 hover:bg-white/[0.03]"
                 >
                   <td className="px-4 py-3 font-medium text-white">
                     {item.product_name}
@@ -182,7 +182,7 @@ export default function SaleFormPage() {
                         onClick={() =>
                           updateQty(item.product_id, item.quantity - 1)
                         }
-                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-2 py-0.5 text-xs text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-2 py-0.5 text-xs text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
                       >
                         &minus;
                       </button>
@@ -193,7 +193,7 @@ export default function SaleFormPage() {
                         onClick={() =>
                           updateQty(item.product_id, item.quantity + 1)
                         }
-                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-2 py-0.5 text-xs text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
+                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-2 py-0.5 text-xs text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
                       >
                         +
                       </button>
@@ -254,7 +254,7 @@ export default function SaleFormPage() {
           <button
             type="submit"
             disabled={createSale.isPending || cart.length === 0}
-            className="rounded-full bg-[#dc2626] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
+            className="rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98] disabled:opacity-50"
           >
             {createSale.isPending ? "Procesando..." : "Confirmar Venta"}
           </button>

@@ -16,11 +16,30 @@
   --color-faint-on-dark: rgba(255, 255, 255, 0.28);
 
   --animate-blink: blink 1s step-end infinite;
+  --animate-gradient-shift: gradient-shift 10s ease infinite;
 }
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Brand gradients */
+:root {
+  --gradient-brand: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  --gradient-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%);
+  --gradient-hero: linear-gradient(135deg, #0a0a0a 0%, #16181a 60%, #1a0a0a 100%);
+}
+
+/* Smooth transition utility */
+@utility transition-smooth {
+  transition: all 0.2s ease;
 }
 
 body {

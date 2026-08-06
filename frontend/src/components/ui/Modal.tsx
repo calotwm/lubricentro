@@ -27,7 +27,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
           <h2 className="text-lg tracking-tight text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-[rgba(255,255,255,0.45)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-white"
+            className="rounded-full p-1.5 text-[rgba(255,255,255,0.45)] transition-all duration-200 hover:bg-[rgba(255,255,255,0.08)] hover:text-white"
           >
             &#10005;
           </button>

@@ -46,7 +46,7 @@ export default function SalesListPage() {
         </p>
         <Link
           to="/sales/new"
-          className="inline-flex items-center rounded-full bg-[#dc2626] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c]"
+          className="inline-flex items-center rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98]"
         >
           Nueva Venta
         </Link>
@@ -80,7 +80,7 @@ export default function SalesListPage() {
                 const rows = [
                   <tr
                     key={sale.id}
-                    className="cursor-pointer border-b border-[rgba(255,255,255,0.12)] transition-colors hover:bg-[rgba(255,255,255,0.04)]"
+                    className="cursor-pointer border-b border-[rgba(255,255,255,0.12)] transition-colors duration-150 hover:bg-white/[0.03]"
                     onClick={() =>
                       setExpandedId(isExpanded ? null : sale.id)
                     }

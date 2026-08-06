@@ -54,6 +54,17 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Hero gradient header area */}
+      <div
+        className="-mx-8 -mt-8 px-8 pt-8 pb-6"
+        style={{ background: "var(--gradient-hero)" }}
+      >
+        <h2 className="text-lg tracking-tight text-white">Resumen General</h2>
+        <p className="mt-1 text-sm text-[rgba(255,255,255,0.45)]">
+          Estado actual del inventario y ventas
+        </p>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
@@ -124,7 +135,7 @@ export default function DashboardPage() {
                 movements.map((m) => (
                   <tr
                     key={m.id}
-                    className="border-b border-[rgba(255,255,255,0.12)]"
+                    className="border-b border-[rgba(255,255,255,0.12)] transition-colors duration-150 hover:bg-white/[0.03]"
                   >
                     <td className="px-4 py-3 text-white">
                       {formatDate(m.created_at)}
