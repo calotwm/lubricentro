@@ -90,16 +90,22 @@ export default function ProductFormPage() {
   };
 
   if (isEdit && loadingProduct) {
-    return <p className="text-[#a0a0a0]">Cargando producto...</p>;
+    return (
+      <p className="text-[rgba(255,255,255,0.72)]">Cargando producto...</p>
+    );
   }
 
   const inputClass =
-    "w-full rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-white placeholder:text-[#666] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]";
-  const labelClass = "mb-1 block text-sm font-medium text-[#a0a0a0]";
+    "w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder:text-[rgba(255,255,255,0.28)] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]";
+  const labelClass =
+    "mb-1 block text-sm font-medium text-[rgba(255,255,255,0.72)]";
 
   return (
     <div className="mx-auto max-w-2xl">
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-xl border border-[#333] bg-[#1a1a1a] p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8"
+      >
         {submitError && <AlertBanner message={submitError} variant="error" />}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -228,14 +234,16 @@ export default function ProductFormPage() {
           <button
             type="button"
             onClick={() => navigate("/products")}
-            className="rounded-lg bg-[#222] px-4 py-2 text-sm font-medium text-white border border-[#333] hover:bg-[#2a2a2a]"
+            className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
           >
             Cancelar
           </button>
           <button
             type="submit"
-            disabled={createProduct.isPending || updateProduct.isPending}
-            className="rounded-lg bg-[#dc2626] px-4 py-2 text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50"
+            disabled={
+              createProduct.isPending || updateProduct.isPending
+            }
+            className="rounded-full bg-[#dc2626] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
           >
             {isEdit ? "Actualizar Producto" : "Crear Producto"}
           </button>

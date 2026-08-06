@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import DataTable, { type Column } from "../../components/ui/DataTable";
 import Modal from "../../components/ui/Modal";
 import AlertBanner from "../../components/ui/AlertBanner";
+import BrandBadge from "../../components/ui/BrandBadge";
 import {
   useProducts,
   useCategories,
@@ -11,6 +12,12 @@ import {
   type Product,
 } from "../../hooks/useProducts";
 import { useCreateMovement } from "../../hooks/useStock";
+
+const searchPhrases = [
+  "Buscar por nombre, marca o codigo...",
+  "Buscar por viscosidad...",
+  "Buscar por codigo de barras...",
+];
 
 export default function ProductListPage() {
   const [search, setSearch] = useState("");
@@ -69,7 +76,7 @@ export default function ProductListPage() {
     {
       key: "brand",
       header: "Marca",
-      render: (r) => r.brand?.name ?? "\u2014",
+      render: (r) => <BrandBadge name={r.brand?.name ?? ""} />,
     },
     {
       key: "category",
@@ -83,7 +90,7 @@ export default function ProductListPage() {
         <span
           className={
             r.current_stock <= r.min_stock
-              ? "font-semibold text-[#dc2626]"
+              ? "font-semibold text-[#ef4444]"
               : "text-white"
           }
         >
@@ -99,11 +106,12 @@ export default function ProductListPage() {
     },
   ];
 
-  if (isLoading) return <p className="text-[#a0a0a0]">Cargando productos...</p>;
+  if (isLoading)
+    return <p className="text-[rgba(255,255,255,0.72)]">Cargando productos...</p>;
   if (error) return <AlertBanner message="Error al cargar productos." variant="error" />;
 
   const selectClass =
-    "rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-white focus:border-[#dc2626] focus:outline-none";
+    "rounded-full border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-4 py-2 text-sm text-white focus:border-[#dc2626] focus:outline-none";
 
   return (
     <div className="space-y-6">
@@ -111,7 +119,9 @@ export default function ProductListPage() {
       <div className="flex flex-wrap items-center gap-4">
         <select
           value={categoryId ?? ""}
-          onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+          onChange={(e) =>
+            setCategoryId(e.target.value ? Number(e.target.value) : null)
+          }
           className={selectClass}
         >
           <option value="">Filtrar por categoria</option>
@@ -123,7 +133,9 @@ export default function ProductListPage() {
         </select>
         <select
           value={brandId ?? ""}
-          onChange={(e) => setBrandId(e.target.value ? Number(e.target.value) : null)}
+          onChange={(e) =>
+            setBrandId(e.target.value ? Number(e.target.value) : null)
+          }
           className={selectClass}
         >
           <option value="">Filtrar por marca</option>
@@ -136,7 +148,7 @@ export default function ProductListPage() {
         <div className="ml-auto">
           <Link
             to="/products/new"
-            className="rounded-lg bg-[#dc2626] px-4 py-2 text-sm font-medium text-white hover:bg-[#b91c1c]"
+            className="inline-flex items-center rounded-full bg-[#dc2626] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c]"
           >
             Nuevo Producto
           </Link>
@@ -150,33 +162,33 @@ export default function ProductListPage() {
         keyField="id"
         searchValue={search}
         onSearchChange={setSearch}
-        searchPlaceholder="Buscar por nombre, marca o codigo..."
+        searchPhrases={searchPhrases}
         emptyMessage="No se encontraron productos."
         actions={(row) => (
           <div className="flex items-center gap-2">
             <button
               onClick={() => openAdjust(row, 1)}
-              className="rounded bg-[#22c55e]/10 px-2 py-1 text-xs font-medium text-[#22c55e] hover:bg-[#22c55e]/20"
+              className="rounded-full bg-[rgba(34,197,94,0.1)] px-2.5 py-1 text-xs font-medium text-[#22c55e] transition-colors hover:bg-[rgba(34,197,94,0.2)]"
               title="Aumentar stock"
             >
               +
             </button>
             <button
               onClick={() => openAdjust(row, -1)}
-              className="rounded bg-[#dc2626]/10 px-2 py-1 text-xs font-medium text-[#dc2626] hover:bg-[#dc2626]/20"
+              className="rounded-full bg-[rgba(220,38,38,0.1)] px-2.5 py-1 text-xs font-medium text-[#ef4444] transition-colors hover:bg-[rgba(220,38,38,0.2)]"
               title="Disminuir stock"
             >
               &minus;
             </button>
             <Link
               to={`/products/${row.id}/edit`}
-              className="rounded bg-[#222] px-2 py-1 text-xs font-medium text-white hover:bg-[#2a2a2a]"
+              className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
             >
               Editar
             </Link>
             <button
               onClick={() => handleDelete(row.id)}
-              className="rounded bg-[#dc2626]/10 px-2 py-1 text-xs font-medium text-[#dc2626] hover:bg-[#dc2626]/20"
+              className="rounded-full bg-[rgba(220,38,38,0.1)] px-2.5 py-1 text-xs font-medium text-[#ef4444] transition-colors hover:bg-[rgba(220,38,38,0.2)]"
             >
               Eliminar
             </button>
@@ -192,19 +204,21 @@ export default function ProductListPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-[#a0a0a0]">
+            <label className="mb-1 block text-sm font-medium text-[rgba(255,255,255,0.72)]">
               Cantidad
             </label>
             <input
               type="number"
               min={1}
               value={adjustQty}
-              onChange={(e) => setAdjustQty(Math.max(1, Number(e.target.value)))}
-              className="w-full rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-white focus:border-[#dc2626] focus:outline-none"
+              onChange={(e) =>
+                setAdjustQty(Math.max(1, Number(e.target.value)))
+              }
+              className="w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-[#a0a0a0]">
+            <label className="mb-1 block text-sm font-medium text-[rgba(255,255,255,0.72)]">
               Motivo (obligatorio)
             </label>
             <input
@@ -212,21 +226,21 @@ export default function ProductListPage() {
               value={adjustReason}
               onChange={(e) => setAdjustReason(e.target.value)}
               placeholder="Ej: reconteo, danado, uso interno"
-              className="w-full rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-white placeholder:text-[#666] focus:border-[#dc2626] focus:outline-none"
+              className="w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder:text-[rgba(255,255,255,0.28)] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]"
             />
           </div>
           {adjustError && <AlertBanner message={adjustError} variant="error" />}
           <div className="flex justify-end gap-3">
             <button
               onClick={() => setAdjustProduct(null)}
-              className="rounded-lg bg-[#222] px-4 py-2 text-sm font-medium text-white border border-[#333] hover:bg-[#2a2a2a]"
+              className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
             >
               Cancelar
             </button>
             <button
               onClick={handleAdjustSubmit}
               disabled={createMovement.isPending}
-              className="rounded-lg bg-[#dc2626] px-4 py-2 text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50"
+              className="rounded-full bg-[#dc2626] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
             >
               {createMovement.isPending ? "Guardando..." : "Ajustar"}
             </button>

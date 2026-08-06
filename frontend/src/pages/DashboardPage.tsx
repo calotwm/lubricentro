@@ -23,7 +23,7 @@ function formatDate(iso: string): string {
 
 const typeBadge: Record<string, string> = {
   ENTRY: "text-[#22c55e]",
-  EXIT: "text-[#dc2626]",
+  EXIT: "text-[#ef4444]",
   ADJUSTMENT: "text-[#eab308]",
 };
 
@@ -38,11 +38,16 @@ export default function DashboardPage() {
   const { data: movements } = useStockMovements(undefined, undefined, 0, 10);
 
   if (isLoading) {
-    return <p className="text-[#a0a0a0]">Cargando...</p>;
+    return <p className="text-[rgba(255,255,255,0.72)]">Cargando...</p>;
   }
 
   if (error) {
-    return <AlertBanner message="Error al cargar el panel principal." variant="error" />;
+    return (
+      <AlertBanner
+        message="Error al cargar el panel principal."
+        variant="error"
+      />
+    );
   }
 
   if (!dashboard) return null;
@@ -76,7 +81,9 @@ export default function DashboardPage() {
       {/* Low Stock Alerts */}
       {dashboard.low_stock_products.length > 0 && (
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-white">Productos con Stock Bajo</h2>
+          <h2 className="text-lg tracking-tight text-white">
+            Productos con Stock Bajo
+          </h2>
           <div className="space-y-2">
             {dashboard.low_stock_products.map((p) => (
               <AlertBanner
@@ -91,36 +98,56 @@ export default function DashboardPage() {
 
       {/* Recent Movements */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold text-white">Movimientos Recientes</h2>
-        <div className="overflow-x-auto rounded-xl border border-[#333] bg-[#1a1a1a]">
+        <h2 className="text-lg tracking-tight text-white">
+          Movimientos Recientes
+        </h2>
+        <div className="overflow-x-auto rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a]">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[#333] bg-[#222]">
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Fecha</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Tipo</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Cantidad</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Referencia</th>
+              <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Fecha
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Tipo
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Cantidad
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Referencia
+                </th>
               </tr>
             </thead>
             <tbody>
               {movements && movements.length > 0 ? (
                 movements.map((m) => (
-                  <tr key={m.id} className="border-b border-[#333]">
-                    <td className="px-4 py-3 text-white">{formatDate(m.created_at)}</td>
+                  <tr
+                    key={m.id}
+                    className="border-b border-[rgba(255,255,255,0.12)]"
+                  >
+                    <td className="px-4 py-3 text-white">
+                      {formatDate(m.created_at)}
+                    </td>
                     <td className="px-4 py-3">
                       <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${typeBadge[m.type] ?? "text-[#a0a0a0]"}`}
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${typeBadge[m.type] ?? "text-[rgba(255,255,255,0.45)]"}`}
                       >
                         {typeLabel[m.type] ?? m.type}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-white">{m.quantity}</td>
-                    <td className="px-4 py-3 text-[#a0a0a0]">{m.reference ?? "\u2014"}</td>
+                    <td className="px-4 py-3 text-[rgba(255,255,255,0.72)]">
+                      {m.reference ?? "\u2014"}
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-[#666]">
+                  <td
+                    colSpan={4}
+                    className="px-4 py-8 text-center text-[rgba(255,255,255,0.28)]"
+                  >
                     Sin movimientos recientes.
                   </td>
                 </tr>

@@ -22,12 +22,12 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 w-full max-w-lg rounded-xl border border-[#333] bg-[#1a1a1a] p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+      <div className="relative z-10 w-full max-w-lg rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-lg tracking-tight text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-[#666] hover:bg-[#222] hover:text-white"
+            className="rounded-full p-1.5 text-[rgba(255,255,255,0.45)] transition-colors hover:bg-[rgba(255,255,255,0.08)] hover:text-white"
           >
             &#10005;
           </button>

@@ -44,6 +44,7 @@ async function request<T>(
 }
 
 export const api = {
+  baseUrl: BASE_URL,
   get: <T>(path: string) => request<T>("GET", path),
   post: <T>(path: string, data?: unknown) => request<T>("POST", path, data),
   put: <T>(path: string, data?: unknown) => request<T>("PUT", path, data),

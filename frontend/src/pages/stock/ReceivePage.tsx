@@ -29,7 +29,9 @@ export default function ReceivePage() {
       setError("Seleccione un producto e ingrese la cantidad.");
       return;
     }
-    const product = productsData?.items.find((p) => p.id === Number(selectedProduct));
+    const product = productsData?.items.find(
+      (p) => p.id === Number(selectedProduct),
+    );
     if (!product) return;
 
     setLines((prev) => [
@@ -76,14 +78,17 @@ export default function ReceivePage() {
   };
 
   const inputClass =
-    "w-full rounded-lg border border-[#333] bg-[#1a1a1a] px-3 py-2 text-sm text-white placeholder:text-[#666] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]";
-  const labelClass = "mb-1 block text-sm font-medium text-[#a0a0a0]";
+    "w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder:text-[rgba(255,255,255,0.28)] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]";
+  const labelClass =
+    "mb-1 block text-sm font-medium text-[rgba(255,255,255,0.72)]";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Add line form */}
-      <div className="rounded-xl border border-[#333] bg-[#1a1a1a] p-6">
-        <h2 className="mb-4 text-lg font-semibold text-white">Agregar Articulo</h2>
+      <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+        <h2 className="mb-4 text-lg tracking-tight text-white">
+          Agregar Articulo
+        </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass}>Producto</label>
@@ -134,7 +139,7 @@ export default function ReceivePage() {
         </div>
         <button
           onClick={addLine}
-          className="mt-4 rounded-lg bg-[#222] px-4 py-2 text-sm font-medium text-white border border-[#333] hover:bg-[#2a2a2a]"
+          className="mt-4 rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
         >
           + Agregar a la Lista
         </button>
@@ -144,30 +149,47 @@ export default function ReceivePage() {
 
       {/* Lines table */}
       {lines.length > 0 && (
-        <div className="rounded-xl border border-[#333] bg-[#1a1a1a]">
+        <div className="overflow-x-auto rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a]">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-[#333] bg-[#222]">
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Producto</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Cant.</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Precio Costo</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Referencia</th>
-                <th className="px-4 py-3 font-medium text-[#a0a0a0]">Accion</th>
+              <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Producto
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Cant.
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Precio Costo
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Referencia
+                </th>
+                <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">
+                  Accion
+                </th>
               </tr>
             </thead>
             <tbody>
               {lines.map((line, i) => (
-                <tr key={i} className="border-b border-[#333]">
+                <tr
+                  key={i}
+                  className="border-b border-[rgba(255,255,255,0.12)]"
+                >
                   <td className="px-4 py-3 text-white">{line.product_name}</td>
                   <td className="px-4 py-3 text-white">{line.quantity}</td>
                   <td className="px-4 py-3 text-white">
-                    {line.cost_price ? `$${parseFloat(line.cost_price).toFixed(2)}` : "\u2014"}
+                    {line.cost_price
+                      ? `$${parseFloat(line.cost_price).toFixed(2)}`
+                      : "\u2014"}
                   </td>
-                  <td className="px-4 py-3 text-[#a0a0a0]">{line.reference || "\u2014"}</td>
+                  <td className="px-4 py-3 text-[rgba(255,255,255,0.72)]">
+                    {line.reference || "\u2014"}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => removeLine(i)}
-                      className="text-sm text-[#dc2626] hover:text-[#b91c1c]"
+                      className="text-sm font-medium text-[#ef4444] transition-colors hover:text-[#dc2626]"
                     >
                       Eliminar
                     </button>
@@ -184,14 +206,14 @@ export default function ReceivePage() {
         <div className="flex justify-end gap-3">
           <button
             onClick={() => navigate("/stock")}
-            className="rounded-lg bg-[#222] px-4 py-2 text-sm font-medium text-white border border-[#333] hover:bg-[#2a2a2a]"
+            className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[rgba(255,255,255,0.05)]"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmitAll}
             disabled={receiveStock.isPending}
-            className="rounded-lg bg-[#dc2626] px-4 py-2 text-sm font-medium text-white hover:bg-[#b91c1c] disabled:opacity-50"
+            className="rounded-full bg-[#dc2626] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#b91c1c] disabled:opacity-50"
           >
             {receiveStock.isPending ? "Recibiendo..." : "Recibir Todo"}
           </button>

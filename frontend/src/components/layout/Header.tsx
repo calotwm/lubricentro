@@ -20,8 +20,8 @@ export default function Header() {
     : (titleMap[pathname] ?? "Lubricentro G&G");
 
   return (
-    <header className="flex h-16 items-center border-b border-[#333] bg-[#0a0a0a] px-8">
-      <h1 className="text-xl font-semibold text-white">{title}</h1>
+    <header className="flex h-16 items-center border-b border-[rgba(255,255,255,0.12)] bg-black px-8">
+      <h1 className="text-xl tracking-tight text-white">{title}</h1>
     </header>
   );
 }

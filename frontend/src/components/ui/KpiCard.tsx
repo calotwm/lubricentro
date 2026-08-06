@@ -6,14 +6,19 @@ interface KpiCardProps {
 
 export default function KpiCard({ label, value, subtitle }: KpiCardProps) {
   return (
-    <div className="rounded-xl border border-[#333] bg-[#1a1a1a] p-6">
-      <div>
-        <p className="text-sm font-medium text-[#a0a0a0]">{label}</p>
-        <p className="mt-2 text-2xl font-bold text-white">{value}</p>
-        {subtitle && (
-          <p className="mt-1 text-xs text-[#666]">{subtitle}</p>
-        )}
-      </div>
+    <div className="relative overflow-hidden rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+      <div className="absolute left-0 top-0 h-[3px] w-full bg-[#dc2626]" />
+      <p className="text-sm font-medium text-[rgba(255,255,255,0.72)]">
+        {label}
+      </p>
+      <p className="mt-3 text-2xl font-medium tracking-tight text-white">
+        {value}
+      </p>
+      {subtitle && (
+        <p className="mt-1.5 text-xs text-[rgba(255,255,255,0.45)]">
+          {subtitle}
+        </p>
+      )}
     </div>
   );
 }

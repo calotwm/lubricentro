@@ -83,3 +83,30 @@ export function useBulkPriceUpdate() {
     },
   });
 }
+
+export function useUploadExcel() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch(`${api.baseUrl}/prices/upload-excel`, {
+        method: "POST",
+        body: form,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ detail: "Error al procesar el archivo" }));
+        throw new Error(err.detail || "Error al procesar el archivo");
+      }
+      return res.json() as Promise<{
+        actualizados: number;
+        no_encontrados: number;
+        errores: string[];
+        detalle: { producto: string; precio_anterior: string; precio_nuevo: string }[];
+      }>;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+}
