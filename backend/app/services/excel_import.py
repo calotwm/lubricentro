@@ -35,6 +35,8 @@ _BRAND_COLS = {"marca", "brand"}
 _CAT_COLS = {"categoria", "category", "categoría", "rubro"}
 _COST_COLS = {"precio costo", "costo", "cost price", "cost", "precio_costo", "precioosto"}
 _SELL_COLS = {"precio venta", "venta", "selling price", "price", "precio_venta", "precio", "precioventa", "p. venta"}
+_STOCK_COLS = {"stock", "stock actual", "existencia", "cantidad", "current stock", "stock_actual", "unidades"}
+_MIN_STOCK_COLS = {"stock minimo", "stock min", "min stock", "stock_minimo", "minimo", "min"}
 
 
 def _norm(s: str) -> str:
@@ -57,6 +59,18 @@ def _to_decimal(val) -> Optional[Decimal]:
             return None
         return Decimal(s)
     except InvalidOperation:
+        return None
+
+
+def _to_int(val) -> Optional[int]:
+    if val is None:
+        return None
+    try:
+        s = str(val).strip().replace(",", ".").replace(" ", "")
+        if not s:
+            return None
+        return int(float(s))
+    except (ValueError, InvalidOperation):
         return None
 
 
@@ -113,6 +127,8 @@ async def import_from_excel(
     cat_col = _find_col(raw_headers, _CAT_COLS)
     cost_col = _find_col(raw_headers, _COST_COLS)
     sell_col = _find_col(raw_headers, _SELL_COLS)
+    stock_col = _find_col(raw_headers, _STOCK_COLS)
+    min_stock_col = _find_col(raw_headers, _MIN_STOCK_COLS)
 
     if name_col is None and sku_col is None:
         return {
@@ -142,6 +158,8 @@ async def import_from_excel(
         cat_val = str(cell(cat_col) or "").strip() if cat_col is not None else None
         cost_val = _to_decimal(cell(cost_col)) if cost_col is not None else None
         sell_val = _to_decimal(cell(sell_col)) if sell_col is not None else None
+        stock_val = _to_int(cell(stock_col)) if stock_col is not None else None
+        min_stock_val = _to_int(cell(min_stock_col)) if min_stock_col is not None else None
 
         # Skip completely empty rows
         if not sku_val and not name_val:
@@ -173,6 +191,12 @@ async def import_from_excel(
                 if cat_id and existing.category_id != cat_id:
                     existing.category_id = cat_id
                     changed = True
+            if stock_val is not None:
+                existing.current_stock = stock_val
+                changed = True
+            if min_stock_val is not None:
+                existing.min_stock = min_stock_val
+                changed = True
             if changed:
                 updated += 1
             else:
@@ -195,8 +219,8 @@ async def import_from_excel(
                 cost_price=cost_val,
                 selling_price=sell_val,
                 unit="unit",
-                current_stock=0,
-                min_stock=0,
+                current_stock=stock_val if stock_val is not None else 0,
+                min_stock=min_stock_val if min_stock_val is not None else 0,
                 is_active=True,
             )
             db.add(product)
