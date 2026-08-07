@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCreateQuote } from "../../hooks/useQuotes";
+import { useCreateQuote, type Quote } from "../../hooks/useQuotes";
 import { useProducts } from "../../hooks/useProducts";
 import AlertBanner from "../../components/ui/AlertBanner";
+import { buildWhatsAppLink } from "../../utils/whatsapp";
 
 interface LineItem {
   product_id: number | null;
@@ -31,6 +32,7 @@ export default function QuoteFormPage() {
     { product_id: null, description: "", quantity: 1, unit_price: "0" },
   ]);
   const [error, setError] = useState("");
+  const [createdQuote, setCreatedQuote] = useState<Quote | null>(null);
 
   const addItem = () => {
     setItems([...items, { product_id: null, description: "", quantity: 1, unit_price: "0" }]);
@@ -97,14 +99,64 @@ export default function QuoteFormPage() {
         })),
       },
       {
-        onSuccess: () => navigate("/quotes"),
+        onSuccess: (quote) => setCreatedQuote(quote),
         onError: (err: Error) => setError(err.message),
       },
     );
   };
 
+  const handleWhatsApp = () => {
+    if (!createdQuote) return;
+    const link = buildWhatsAppLink(createdQuote, createdQuote.items);
+    if (link) window.open(link, "_blank");
+  };
+
   const inputClass =
     "w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder:text-[rgba(255,255,255,0.28)] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]";
+
+  // ── Success state after creation ────────────────────────────────────────────
+  if (createQuote.isSuccess && createdQuote) {
+    const waLink = buildWhatsAppLink(createdQuote, createdQuote.items);
+
+    return (
+      <div className="space-y-6">
+        <div className="glass-card flex flex-col items-center gap-4 p-8 text-center">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[rgba(34,197,94,0.15)] text-2xl text-[#22c55e]">
+            ✓
+          </div>
+          <h3 className="text-lg font-semibold text-white">
+            Presupuesto {createdQuote.quote_number} creado
+          </h3>
+          <p className="text-sm text-[rgba(255,255,255,0.72)]">
+            Cliente: {createdQuote.client_name} — Total: {formatCurrency(createdQuote.total)}
+          </p>
+          <div className="flex gap-3 pt-2">
+            {waLink ? (
+              <button
+                onClick={handleWhatsApp}
+                className="rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98]"
+              >
+                Enviar por WhatsApp
+              </button>
+            ) : (
+              <span
+                className="cursor-not-allowed rounded-full bg-[rgba(255,255,255,0.05)] px-5 py-2.5 text-sm font-medium text-[rgba(255,255,255,0.28)]"
+                title="Agregá el teléfono del cliente al presupuesto"
+              >
+                Enviar por WhatsApp
+              </span>
+            )}
+            <button
+              onClick={() => navigate("/quotes")}
+              className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
+            >
+              Volver a la lista
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -201,9 +253,7 @@ export default function QuoteFormPage() {
                 type="number"
                 min={1}
                 value={item.quantity}
-                onChange={(e) =>
-                  updateItem(index, "quantity", Math.max(1, Number(e.target.value)))
-                }
+                onChange={(e) => updateItem(index, "quantity", Math.max(1, Number(e.target.value)))}
                 className={inputClass}
               />
             </div>

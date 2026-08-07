@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useQuotes } from "../../hooks/useQuotes";
+import { useQuotes, useQuote } from "../../hooks/useQuotes";
 import AlertBanner from "../../components/ui/AlertBanner";
+import { buildWhatsAppLink } from "../../utils/whatsapp";
 
 function formatCurrency(value: string): string {
   return new Intl.NumberFormat("es-AR", {
@@ -19,6 +21,22 @@ function formatDate(iso: string): string {
 
 export default function QuotesListPage() {
   const { data, isLoading, error } = useQuotes();
+
+  // WhatsApp: fetch quote detail on demand
+  const [whatsappQuoteId, setWhatsappQuoteId] = useState<number | null>(null);
+  const { data: whatsappQuote, isSuccess, isFetching: isWaLoading, isError: isWaError } = useQuote(whatsappQuoteId);
+
+  useEffect(() => {
+    if (isSuccess && whatsappQuote && whatsappQuote.id === whatsappQuoteId) {
+      const link = buildWhatsAppLink(whatsappQuote, whatsappQuote.items);
+      if (link) window.open(link, "_blank");
+      setWhatsappQuoteId(null);
+    }
+  }, [isSuccess, whatsappQuote, whatsappQuoteId]);
+
+  const handleWhatsApp = (quoteId: number) => {
+    setWhatsappQuoteId(quoteId);
+  };
 
   if (isLoading) {
     return <p className="text-[rgba(255,255,255,0.72)]">Cargando presupuestos...</p>;
@@ -39,6 +57,10 @@ export default function QuotesListPage() {
           Nuevo Presupuesto
         </Link>
       </div>
+
+      {isWaError && (
+        <AlertBanner message="Error al cargar el presupuesto para WhatsApp." variant="error" />
+      )}
 
       <div className="glass-card overflow-x-auto">
         <table className="w-full text-left text-sm">
@@ -87,14 +109,24 @@ export default function QuotesListPage() {
                     {formatDate(q.created_at)}
                   </td>
                   <td className="px-4 py-3">
-                    <a
-                      href={`/api/quotes/${q.id}/pdf`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
-                    >
-                      PDF
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/api/quotes/${q.id}/pdf`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
+                      >
+                        PDF
+                      </a>
+                      <button
+                        onClick={() => handleWhatsApp(q.id)}
+                        disabled={isWaLoading && whatsappQuoteId === q.id}
+                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30 disabled:opacity-50"
+                        title="Enviar por WhatsApp"
+                      >
+                        {isWaLoading && whatsappQuoteId === q.id ? "..." : "WhatsApp"}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
