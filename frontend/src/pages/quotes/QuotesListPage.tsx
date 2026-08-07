@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useQuotes, useQuote } from "../../hooks/useQuotes";
 import AlertBanner from "../../components/ui/AlertBanner";
@@ -24,17 +24,27 @@ export default function QuotesListPage() {
 
   // WhatsApp: fetch quote detail on demand
   const [whatsappQuoteId, setWhatsappQuoteId] = useState<number | null>(null);
+  const waWindowRef = useRef<Window | null>(null);
   const { data: whatsappQuote, isSuccess, isFetching: isWaLoading, isError: isWaError } = useQuote(whatsappQuoteId);
 
   useEffect(() => {
     if (isSuccess && whatsappQuote && whatsappQuote.id === whatsappQuoteId) {
       const link = buildWhatsAppLink(whatsappQuote, whatsappQuote.items);
-      if (link) window.open(link, "_blank");
+      if (link && waWindowRef.current) {
+        // Point the tab opened during the click gesture to the final URL.
+        waWindowRef.current.location.href = link;
+      } else if (waWindowRef.current) {
+        // No client phone on the quote — close the placeholder tab.
+        waWindowRef.current.close();
+      }
+      waWindowRef.current = null;
       setWhatsappQuoteId(null);
     }
   }, [isSuccess, whatsappQuote, whatsappQuoteId]);
 
   const handleWhatsApp = (quoteId: number) => {
+    // Open the tab synchronously in the click gesture so popup blockers allow it.
+    waWindowRef.current = window.open("", "_blank");
     setWhatsappQuoteId(quoteId);
   };
 
