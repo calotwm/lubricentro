@@ -4,11 +4,9 @@ const titleMap: Record<string, string> = {
   "/dashboard": "Panel Principal",
   "/products": "Productos",
   "/products/new": "Nuevo Producto",
-  "/stock": "Movimientos de Stock",
-  "/stock/receive": "Recepcion de Mercaderia",
-  "/sales": "Ventas",
-  "/sales/new": "Nueva Venta",
   "/prices": "Gestion de Precios",
+  "/quotes": "Presupuestos",
+  "/quotes/new": "Nuevo Presupuesto",
   "/reports": "Reportes",
 };
 

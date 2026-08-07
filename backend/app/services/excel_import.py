@@ -24,7 +24,7 @@ import openpyxl
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Brand, Category, Product
+from app.models import Brand, Category, PriceChangeSource, PriceHistory, Product
 
 # ---------------------------------------------------------------------------
 # Column name aliases
@@ -179,6 +179,23 @@ async def import_from_excel(
                 existing.cost_price = cost_val
                 changed = True
             if sell_val is not None:
+                old_price = existing.selling_price
+                if old_price is not None and old_price != sell_val:
+                    # Record price history BEFORE mutation
+                    from decimal import ROUND_HALF_UP
+                    pct = (
+                        ((sell_val - old_price) / old_price * Decimal("100"))
+                        .quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+                    )
+                    db.add(
+                        PriceHistory(
+                            product_id=existing.id,
+                            old_price=old_price,
+                            new_price=sell_val,
+                            percentage=pct,
+                            source=PriceChangeSource.EXCEL,
+                        )
+                    )
                 existing.selling_price = sell_val
                 changed = True
             if brand_val:

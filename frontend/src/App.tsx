@@ -9,6 +9,8 @@ import SalesListPage from "./pages/sales/SalesListPage";
 import SaleFormPage from "./pages/sales/SaleFormPage";
 import PricesPage from "./pages/PricesPage";
 import ReportsPage from "./pages/ReportsPage";
+import QuotesListPage from "./pages/quotes/QuotesListPage";
+import QuoteFormPage from "./pages/quotes/QuoteFormPage";
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
         <Route path="/sales" element={<SalesListPage />} />
         <Route path="/sales/new" element={<SaleFormPage />} />
         <Route path="/prices" element={<PricesPage />} />
+        <Route path="/quotes" element={<QuotesListPage />} />
+        <Route path="/quotes/new" element={<QuoteFormPage />} />
         <Route path="/reports" element={<ReportsPage />} />
       </Route>
     </Routes>

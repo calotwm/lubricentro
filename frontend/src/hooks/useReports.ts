@@ -1,38 +1,32 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
-import type { Product } from "./useProducts";
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+
+export interface PriceChangeItem {
+  id: number;
+  product_name: string;
+  old_price: string;
+  new_price: string;
+  percentage: string | null;
+  source: string;
+  created_at: string | null;
+}
+
+export interface RecentQuote {
+  id: number;
+  quote_number: string;
+  client_name: string;
+  total: string;
+  status: string;
+  created_at: string | null;
+}
 
 export interface DashboardData {
-  total_inventory_value: string;
-  low_stock_count: number;
-  today_sales_total: string;
-  month_sales_total: string;
-  low_stock_products: Product[];
-}
-
-export interface BestSellerItem {
-  product_id: number;
-  product_name: string;
-  total_quantity_sold: number;
-  total_revenue: string;
-}
-
-export interface ProfitMarginData {
-  total_revenue: string;
-  total_cost: string;
-  gross_profit: string;
-  margin_percentage: string;
-}
-
-export interface StockMovementCsvRow {
-  id: number;
-  product_id: number;
-  product_name: string;
-  type: string;
-  quantity: number;
-  reference: string | null;
-  notes: string | null;
-  created_at: string | null;
+  total_products: number;
+  total_brands: number;
+  recent_price_changes: PriceChangeItem[];
+  recent_quotes: RecentQuote[];
 }
 
 export function useDashboard() {
@@ -42,33 +36,75 @@ export function useDashboard() {
   });
 }
 
-export function useBestSellers(limit = 10) {
+// ── Price History ────────────────────────────────────────────────────────────
+
+export interface PriceHistoryItem {
+  id: number;
+  product_name: string;
+  brand_name: string | null;
+  old_price: string;
+  new_price: string;
+  percentage: string | null;
+  source: string;
+  reference: string | null;
+  created_at: string | null;
+}
+
+export interface PriceHistoryResponse {
+  items: PriceHistoryItem[];
+  total: number;
+}
+
+export interface PriceHistoryFilters {
+  product_id?: number | null;
+  brand_id?: number | null;
+  date_from?: string | null;
+  date_to?: string | null;
+  source?: string | null;
+}
+
+export function usePriceHistory(
+  filters: PriceHistoryFilters = {},
+  skip = 0,
+  limit = 50,
+) {
+  const params = new URLSearchParams();
+  if (filters.product_id) params.set("product_id", String(filters.product_id));
+  if (filters.brand_id) params.set("brand_id", String(filters.brand_id));
+  if (filters.date_from) params.set("date_from", filters.date_from);
+  if (filters.date_to) params.set("date_to", filters.date_to);
+  if (filters.source) params.set("source", filters.source);
+  params.set("skip", String(skip));
+  params.set("limit", String(limit));
+
   return useQuery({
-    queryKey: ["best-sellers", limit],
-    queryFn: () => api.get<BestSellerItem[]>(`/reports/best-sellers?limit=${limit}`),
+    queryKey: ["price-history", filters, skip, limit],
+    queryFn: () =>
+      api.get<PriceHistoryResponse>(`/reports/price-history?${params}`),
   });
 }
 
-export function useProfitMargin() {
-  return useQuery({
-    queryKey: ["profit-margin"],
-    queryFn: () => api.get<ProfitMarginData>("/reports/profit-margin"),
-  });
+export function getPriceHistoryCsvUrl(filters: PriceHistoryFilters = {}): string {
+  const params = new URLSearchParams();
+  if (filters.product_id) params.set("product_id", String(filters.product_id));
+  if (filters.brand_id) params.set("brand_id", String(filters.brand_id));
+  if (filters.date_from) params.set("date_from", filters.date_from);
+  if (filters.date_to) params.set("date_to", filters.date_to);
+  if (filters.source) params.set("source", filters.source);
+  return `/api/reports/price-history/csv?${params}`;
 }
 
-export function useReorderList() {
-  return useQuery({
-    queryKey: ["reorder-list"],
-    queryFn: () => api.get<Product[]>("/reports/reorder-list"),
-  });
+export function handleExportCsv(filters: PriceHistoryFilters = {}) {
+  const today = new Date().toISOString().split("T")[0];
+  const filename = `historial_precios_${today}.csv`;
+  const url = getPriceHistoryCsvUrl(filters);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
 }
 
-export function useStockHistoryCsv() {
-  return useQuery({
-    queryKey: ["stock-history-csv"],
-    queryFn: () => api.get<StockMovementCsvRow[]>("/reports/stock-history"),
-  });
-}
+// ── Bulk Price Update (unchanged) ────────────────────────────────────────────
 
 export function useBulkPriceUpdate() {
   const qc = useQueryClient();
@@ -80,6 +116,8 @@ export function useBulkPriceUpdate() {
     }) => api.put<{ updated: number; percentage: string }>("/prices/bulk", data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: ["price-history"] });
+      qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -110,6 +148,7 @@ export function useImportExcel() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
+      qc.invalidateQueries({ queryKey: ["price-history"] });
     },
   });
 }

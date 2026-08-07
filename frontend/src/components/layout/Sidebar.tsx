@@ -3,9 +3,8 @@ import { NavLink } from "react-router-dom";
 const links = [
   { to: "/dashboard", label: "Panel Principal" },
   { to: "/products", label: "Productos" },
-  { to: "/stock", label: "Stock" },
-  { to: "/sales", label: "Ventas" },
   { to: "/prices", label: "Precios" },
+  { to: "/quotes", label: "Presupuestos" },
   { to: "/reports", label: "Reportes" },
 ];
 

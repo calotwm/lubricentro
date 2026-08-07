@@ -130,3 +130,69 @@ async def seed_product(db_session, seed_category, seed_brand):
     await db_session.flush()
     await db_session.refresh(product)
     return product
+
+
+@pytest_asyncio.fixture
+async def seed_price_history(db_session, seed_product):
+    """Create and return test price history rows."""
+    from decimal import Decimal
+    from app.models import PriceChangeSource, PriceHistory
+
+    ph1 = PriceHistory(
+        product_id=seed_product.id,
+        old_price=Decimal("80.00"),
+        new_price=Decimal("100.00"),
+        percentage=Decimal("25.00"),
+        source=PriceChangeSource.BULK,
+        reference="Ajuste Q1",
+    )
+    ph2 = PriceHistory(
+        product_id=seed_product.id,
+        old_price=Decimal("100.00"),
+        new_price=Decimal("110.00"),
+        percentage=Decimal("10.00"),
+        source=PriceChangeSource.MANUAL,
+    )
+    db_session.add_all([ph1, ph2])
+    await db_session.flush()
+    await db_session.refresh(ph1)
+    await db_session.refresh(ph2)
+    return [ph1, ph2]
+
+
+@pytest_asyncio.fixture
+async def seed_quote(db_session, seed_product):
+    """Create and return a test quote with items."""
+    from decimal import Decimal
+    from app.models import Quote, QuoteItem
+
+    quote = Quote(
+        quote_number="PRES-2026-0001",
+        client_name="Juan Perez",
+        client_phone="1144445555",
+        status="draft",
+        total=Decimal("220.00"),
+    )
+    db_session.add(quote)
+    await db_session.flush()
+
+    item1 = QuoteItem(
+        quote_id=quote.id,
+        product_id=seed_product.id,
+        description="Aceite 20W-50",
+        quantity=2,
+        unit_price=Decimal("100.00"),
+        subtotal=Decimal("200.00"),
+    )
+    item2 = QuoteItem(
+        quote_id=quote.id,
+        product_id=None,
+        description="Lubricante genérico",
+        quantity=1,
+        unit_price=Decimal("20.00"),
+        subtotal=Decimal("20.00"),
+    )
+    db_session.add_all([item1, item2])
+    await db_session.flush()
+    await db_session.refresh(quote)
+    return quote

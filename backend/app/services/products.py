@@ -1,10 +1,10 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from typing import List, Optional
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Brand, Category, Product
+from app.models import Brand, Category, PriceChangeSource, PriceHistory, Product
 from app.schemas import ProductCreate, ProductUpdate
 
 
@@ -77,6 +77,26 @@ async def update_product(
         return None
 
     update_data = data.model_dump(exclude_unset=True)
+
+    # Record price history if selling_price is changing
+    if "selling_price" in update_data:
+        old_price = product.selling_price
+        new_price = update_data["selling_price"]
+        if old_price is not None and new_price is not None and old_price != new_price:
+            pct = (
+                ((new_price - old_price) / old_price * Decimal("100"))
+                .quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            )
+            db.add(
+                PriceHistory(
+                    product_id=product.id,
+                    old_price=old_price,
+                    new_price=new_price,
+                    percentage=pct,
+                    source=PriceChangeSource.MANUAL,
+                )
+            )
+
     for field, value in update_data.items():
         setattr(product, field, value)
 
@@ -94,20 +114,3 @@ async def delete_product(db: AsyncSession, product_id: int) -> bool:
     product.is_active = False
     await db.flush()
     return True
-
-
-async def adjust_stock(
-    db: AsyncSession,
-    product_id: int,
-    quantity: int,
-    reference: Optional[str] = None,
-) -> Optional[Product]:
-    """Adjust product stock by a signed quantity (positive=add, negative=remove)."""
-    product = await get_product(db, product_id)
-    if not product:
-        return None
-
-    product.current_stock = max(0, product.current_stock + quantity)
-    await db.flush()
-    await db.refresh(product)
-    return product

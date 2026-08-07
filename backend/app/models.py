@@ -34,6 +34,12 @@ class MovementType(str, PyEnum):
     ADJUSTMENT = "ADJUSTMENT"
 
 
+class PriceChangeSource(str, PyEnum):
+    BULK = "bulk"
+    EXCEL = "excel"
+    MANUAL = "manual"
+
+
 class Category(Base):
     __tablename__ = "categories"
 
@@ -181,3 +187,77 @@ class SaleItem(Base):
     product: Mapped["Product"] = relationship(
         back_populates="sale_items", lazy="selectin"
     )
+
+
+class PriceHistory(Base):
+    __tablename__ = "price_history"
+    __table_args__ = (
+        Index("ix_price_history_product_id", "product_id"),
+        Index("ix_price_history_created_at", "created_at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    product_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("products.id"), nullable=False
+    )
+    old_price: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
+    new_price: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
+    percentage: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(8, 2), nullable=True
+    )
+    source: Mapped[PriceChangeSource] = mapped_column(
+        Enum(PriceChangeSource), nullable=False
+    )
+    reference: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), nullable=False
+    )
+
+
+class Quote(Base):
+    __tablename__ = "quotes"
+    __table_args__ = (
+        Index("ix_quotes_quote_number", "quote_number"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    quote_number: Mapped[str] = mapped_column(
+        String(20), unique=True, nullable=False
+    )
+    client_name: Mapped[str] = mapped_column(String(200), nullable=False)
+    client_phone: Mapped[Optional[str]] = mapped_column(String(50), nullable=True)
+    status: Mapped[str] = mapped_column(
+        String(20), server_default="draft", nullable=False
+    )
+    total: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, server_default=func.now(), nullable=False
+    )
+
+    # Relationships
+    items: Mapped[List["QuoteItem"]] = relationship(
+        back_populates="quote", lazy="selectin"
+    )
+
+
+class QuoteItem(Base):
+    __tablename__ = "quote_items"
+    __table_args__ = (
+        Index("ix_quote_items_quote_id", "quote_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    quote_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("quotes.id"), nullable=False
+    )
+    product_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("products.id"), nullable=True
+    )
+    description: Mapped[str] = mapped_column(String(200), nullable=False)
+    quantity: Mapped[int] = mapped_column(Integer, nullable=False)
+    unit_price: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
+    subtotal: Mapped[Decimal] = mapped_column(Numeric(15, 2), nullable=False)
+
+    # Relationships
+    quote: Mapped["Quote"] = relationship(back_populates="items", lazy="selectin")

@@ -91,7 +91,7 @@ class ProductList(BaseModel):
     page_size: int
 
 
-# ── Stock Movement ────────────────────────────────────────────────────────────
+# ── Stock Movement (kept for model compat, removed from routers in Phase 2) ──
 
 class StockMovementCreate(BaseModel):
     product_id: int
@@ -122,7 +122,7 @@ class StockReceiveCreate(BaseModel):
     notes: Optional[str] = None
 
 
-# ── Sale ──────────────────────────────────────────────────────────────────────
+# ── Sale (kept for model compat, removed from routers in Phase 2) ─────────────
 
 class SaleItemCreate(BaseModel):
     product_id: int
@@ -165,28 +165,87 @@ class BulkPriceUpdate(BaseModel):
     percentage: Decimal = Field(..., gt=0, description="Percentage increase (e.g. 10 for 10%)")
 
 
-# ── Dashboard / Reports ───────────────────────────────────────────────────────
+# ── Quote ─────────────────────────────────────────────────────────────────────
 
-class BestSellerItem(BaseModel):
-    product_id: int
+class QuoteItemCreate(BaseModel):
+    product_id: Optional[int] = None
+    description: str = Field("", max_length=200)
+    quantity: int = Field(..., gt=0)
+    unit_price: Decimal = Field(..., ge=0)
+
+
+class QuoteCreate(BaseModel):
+    client_name: str = Field(..., max_length=200)
+    client_phone: Optional[str] = Field(None, max_length=50)
+    items: List[QuoteItemCreate] = Field(..., min_length=1)
+
+
+class QuoteItemRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    quote_id: int
+    product_id: Optional[int] = None
+    description: str
+    quantity: int
+    unit_price: Decimal
+    subtotal: Decimal
+
+
+class QuoteRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    quote_number: str
+    client_name: str
+    client_phone: Optional[str] = None
+    status: str
+    total: Decimal
+    created_at: datetime
+    items: List[QuoteItemRead] = []
+
+
+class QuoteListResponse(BaseModel):
+    items: List[QuoteRead]
+    total: int
+    page: int
+    page_size: int
+
+
+# ── Price History ─────────────────────────────────────────────────────────────
+
+class PriceHistoryRead(BaseModel):
+    id: int
     product_name: str
-    total_quantity_sold: int
-    total_revenue: Decimal
+    brand_name: Optional[str] = None
+    old_price: str
+    new_price: str
+    percentage: Optional[str] = None
+    source: str
+    reference: Optional[str] = None
+    created_at: Optional[str] = None
 
+
+class PriceHistoryFilter(BaseModel):
+    product_id: Optional[int] = None
+    brand_id: Optional[int] = None
+    date_from: Optional[str] = None
+    date_to: Optional[str] = None
+    source: Optional[str] = None
+
+
+class PriceHistoryListResponse(BaseModel):
+    items: List[PriceHistoryRead]
+    total: int
+
+
+# ── Dashboard ─────────────────────────────────────────────────────────────────
 
 class DashboardResponse(BaseModel):
-    total_inventory_value: Decimal
-    low_stock_count: int
-    today_sales_total: Decimal
-    month_sales_total: Decimal
-    low_stock_products: List[ProductRead]
-
-
-class ProfitMarginResponse(BaseModel):
-    total_revenue: Decimal
-    total_cost: Decimal
-    gross_profit: Decimal
-    margin_percentage: Decimal
+    total_products: int
+    total_brands: int
+    recent_price_changes: List[dict]
+    recent_quotes: List[dict]
 
 
 # ── Excel Import ──────────────────────────────────────────────────────────────
