@@ -20,6 +20,7 @@ export default function App() {
         <Route path="/prices" element={<PricesPage />} />
         <Route path="/quotes" element={<QuotesListPage />} />
         <Route path="/quotes/new" element={<QuoteFormPage />} />
+        <Route path="/quotes/:id/edit" element={<QuoteFormPage />} />
         <Route path="/reports" element={<ReportsPage />} />
       </Route>
     </Routes>

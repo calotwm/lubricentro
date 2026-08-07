@@ -53,6 +53,8 @@ export interface QuoteCreatePayload {
   items: QuoteItemPayload[];
 }
 
+export type QuoteUpdatePayload = QuoteCreatePayload;
+
 // ── Query hooks ──────────────────────────────────────────────────────────────
 
 export function useQuotes(skip = 0, limit = 20) {
@@ -76,6 +78,28 @@ export function useCreateQuote() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: QuoteCreatePayload) => api.post<Quote>("/quotes", data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["quotes"] });
+    },
+  });
+}
+
+export function useUpdateQuote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: QuoteUpdatePayload }) =>
+      api.put<Quote>(`/quotes/${id}`, data),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ["quotes"] });
+      qc.invalidateQueries({ queryKey: ["quotes", variables.id] });
+    },
+  });
+}
+
+export function useDeleteQuote() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.delete<void>(`/quotes/${id}`),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quotes"] });
     },

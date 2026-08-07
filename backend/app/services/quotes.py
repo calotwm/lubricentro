@@ -1,4 +1,4 @@
-"""Quotes service: create, list, get, PDF generation."""
+"""Quotes service: create, list, get, update, delete, PDF generation."""
 
 import asyncio
 from datetime import datetime
@@ -6,11 +6,12 @@ from decimal import Decimal
 from io import BytesIO
 from typing import List, Optional
 
+from sqlalchemy import delete as sa_delete
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Product, Quote, QuoteItem
-from app.schemas import QuoteCreate
+from app.schemas import QuoteCreate, QuoteUpdate
 from app.services.pdf import generate_pdf
 
 
@@ -127,3 +128,66 @@ async def get_quote_pdf(db: AsyncSession, quote_id: int) -> Optional[BytesIO]:
     if not quote:
         return None
     return generate_pdf(quote, quote.items)
+
+
+async def update_quote(
+    db: AsyncSession, quote_id: int, data: QuoteUpdate
+) -> Optional[Quote]:
+    """Update an existing quote: client info + replace items, recompute total."""
+    quote = await get_quote(db, quote_id)
+    if not quote:
+        return None
+
+    # Update client info
+    quote.client_name = data.client_name
+    quote.client_phone = data.client_phone
+
+    # Delete existing items
+    await db.execute(
+        sa_delete(QuoteItem).where(QuoteItem.quote_id == quote_id)
+    )
+
+    # Recompute total and insert new items
+    total = Decimal("0")
+    for item in data.items:
+        subtotal = (item.quantity * item.unit_price).quantize(Decimal("0.01"))
+        total += subtotal
+
+        # Resolve description from product if product_id given and description empty
+        description = item.description
+        if item.product_id and not description:
+            product = await db.get(Product, item.product_id)
+            if product:
+                description = product.name
+
+        quote_item = QuoteItem(
+            quote_id=quote_id,
+            product_id=item.product_id,
+            description=description or "Item",
+            quantity=item.quantity,
+            unit_price=item.unit_price,
+            subtotal=subtotal,
+        )
+        db.add(quote_item)
+
+    quote.total = total.quantize(Decimal("0.01"))
+    await db.flush()
+    await db.refresh(quote)
+    return quote
+
+
+async def delete_quote(db: AsyncSession, quote_id: int) -> bool:
+    """Delete a quote and its items. Returns True if deleted, False if not found."""
+    quote = await get_quote(db, quote_id)
+    if not quote:
+        return False
+
+    # Delete items first (could also rely on cascade if configured)
+    await db.execute(
+        sa_delete(QuoteItem).where(QuoteItem.quote_id == quote_id)
+    )
+    await db.execute(
+        sa_delete(Quote).where(Quote.id == quote_id)
+    )
+    await db.flush()
+    return True

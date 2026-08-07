@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.schemas import QuoteCreate, QuoteListResponse, QuoteRead
+from app.schemas import QuoteCreate, QuoteListResponse, QuoteRead, QuoteUpdate
 from app.services import quotes as quote_service
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
@@ -43,6 +43,31 @@ async def get_quote(
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
     return quote
+
+
+@router.put("/{quote_id}", response_model=QuoteRead)
+async def update_quote(
+    quote_id: int,
+    data: QuoteUpdate,
+    db: AsyncSession = Depends(get_db),
+):
+    """Update an existing quote: client info + replace items, recompute total."""
+    quote = await quote_service.update_quote(db, quote_id, data)
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    return quote
+
+
+@router.delete("/{quote_id}", status_code=204)
+async def delete_quote(
+    quote_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Delete a quote and its items."""
+    deleted = await quote_service.delete_quote(db, quote_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    return None
 
 
 @router.get("/{quote_id}/pdf")

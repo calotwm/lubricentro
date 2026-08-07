@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCreateQuote, type Quote } from "../../hooks/useQuotes";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCreateQuote, useUpdateQuote, useQuote, type Quote } from "../../hooks/useQuotes";
 import { useProducts } from "../../hooks/useProducts";
 import AlertBanner from "../../components/ui/AlertBanner";
 import { buildWhatsAppLink } from "../../utils/whatsapp";
@@ -23,7 +23,13 @@ function formatCurrency(value: string | number): string {
 
 export default function QuoteFormPage() {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const quoteId = id ? Number(id) : null;
+  const isEdit = quoteId !== null;
+
+  const { data: quote, isLoading: loadingQuote, error: quoteError } = useQuote(quoteId);
   const createQuote = useCreateQuote();
+  const updateQuote = useUpdateQuote();
   const { data: products } = useProducts(undefined, undefined, undefined, 1, 200);
 
   const [clientName, setClientName] = useState("");
@@ -32,7 +38,27 @@ export default function QuoteFormPage() {
     { product_id: null, description: "", quantity: 1, unit_price: "0" },
   ]);
   const [error, setError] = useState("");
-  const [createdQuote, setCreatedQuote] = useState<Quote | null>(null);
+  const [savedQuote, setSavedQuote] = useState<Quote | null>(null);
+  const prefilledRef = useRef(false);
+
+  // Prefill form when editing and quote loads (only once)
+  useEffect(() => {
+    if (isEdit && quote && !prefilledRef.current) {
+      setClientName(quote.client_name);
+      setClientPhone(quote.client_phone ?? "");
+      setItems(
+        quote.items.length > 0
+          ? quote.items.map((item) => ({
+              product_id: item.product_id,
+              description: item.description,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+            }))
+          : [{ product_id: null, description: "", quantity: 1, unit_price: "0" }]
+      );
+      prefilledRef.current = true;
+    }
+  }, [isEdit, quote]);
 
   const addItem = () => {
     setItems([...items, { product_id: null, description: "", quantity: 1, unit_price: "0" }]);
@@ -87,36 +113,72 @@ export default function QuoteFormPage() {
     }
 
     setError("");
-    createQuote.mutate(
-      {
-        client_name: clientName.trim(),
-        client_phone: clientPhone.trim() || null,
-        items: items.map((item) => ({
-          product_id: item.product_id,
-          description: item.description || "Item",
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-        })),
-      },
-      {
-        onSuccess: (quote) => setCreatedQuote(quote),
+    const payload = {
+      client_name: clientName.trim(),
+      client_phone: clientPhone.trim() || null,
+      items: items.map((item) => ({
+        product_id: item.product_id,
+        description: item.description || "Item",
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+      })),
+    };
+
+    if (isEdit && quoteId) {
+      updateQuote.mutate(
+        { id: quoteId, data: payload },
+        {
+          onSuccess: (quote) => setSavedQuote(quote),
+          onError: (err: Error) => setError(err.message),
+        },
+      );
+    } else {
+      createQuote.mutate(payload, {
+        onSuccess: (quote) => setSavedQuote(quote),
         onError: (err: Error) => setError(err.message),
-      },
-    );
+      });
+    }
   };
 
   const handleWhatsApp = () => {
-    if (!createdQuote) return;
-    const link = buildWhatsAppLink(createdQuote, createdQuote.items);
+    if (!savedQuote) return;
+    const link = buildWhatsAppLink(savedQuote, savedQuote.items);
     if (link) window.open(link, "_blank");
   };
 
   const inputClass =
     "w-full rounded-[12px] border border-[rgba(255,255,255,0.15)] bg-[#0a0a0a] px-3 py-2.5 text-sm text-white placeholder:text-[rgba(255,255,255,0.28)] focus:border-[#dc2626] focus:outline-none focus:ring-1 focus:ring-[#dc2626]";
 
-  // ── Success state after creation ────────────────────────────────────────────
-  if (createQuote.isSuccess && createdQuote) {
-    const waLink = buildWhatsAppLink(createdQuote, createdQuote.items);
+  // ── Loading state for edit mode ──────────────────────────────────────────────
+  if (isEdit && loadingQuote) {
+    return <p className="text-[rgba(255,255,255,0.72)]">Cargando presupuesto...</p>;
+  }
+
+  // ── Error state for edit mode (404) ──────────────────────────────────────────
+  if (isEdit && quoteError) {
+    return (
+      <div className="space-y-6">
+        <AlertBanner
+          message="El presupuesto que busca no existe o fue eliminado."
+          variant="error"
+        />
+        <div className="flex justify-end">
+          <button
+            onClick={() => navigate("/quotes")}
+            className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
+          >
+            Volver a la lista
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const isPending = createQuote.isPending || updateQuote.isPending;
+
+  // ── Success state after creation/update ──────────────────────────────────────
+  if ((createQuote.isSuccess || updateQuote.isSuccess) && savedQuote) {
+    const waLink = buildWhatsAppLink(savedQuote, savedQuote.items);
 
     return (
       <div className="space-y-6">
@@ -125,10 +187,10 @@ export default function QuoteFormPage() {
             ✓
           </div>
           <h3 className="text-lg font-semibold text-white">
-            Presupuesto {createdQuote.quote_number} creado
+            Presupuesto {savedQuote.quote_number} {isEdit ? "actualizado" : "creado"}
           </h3>
           <p className="text-sm text-[rgba(255,255,255,0.72)]">
-            Cliente: {createdQuote.client_name} — Total: {formatCurrency(createdQuote.total)}
+            Cliente: {savedQuote.client_name} — Total: {formatCurrency(savedQuote.total)}
           </p>
           <div className="flex gap-3 pt-2">
             {waLink ? (
@@ -160,7 +222,9 @@ export default function QuoteFormPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg tracking-tight text-white">Nuevo Presupuesto</h2>
+      <h2 className="text-lg tracking-tight text-white">
+        {isEdit ? "Editar Presupuesto" : "Nuevo Presupuesto"}
+      </h2>
 
       {/* Client info */}
       <div className="glass-card space-y-4 p-6">
@@ -305,10 +369,10 @@ export default function QuoteFormPage() {
         </button>
         <button
           onClick={handleSubmit}
-          disabled={createQuote.isPending}
+          disabled={isPending}
           className="rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98] disabled:opacity-50"
         >
-          {createQuote.isPending ? "Guardando..." : "Crear Presupuesto"}
+          {isPending ? "Guardando..." : isEdit ? "Actualizar Presupuesto" : "Crear Presupuesto"}
         </button>
       </div>
     </div>

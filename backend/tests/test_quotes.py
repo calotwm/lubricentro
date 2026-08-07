@@ -195,3 +195,89 @@ async def test_concurrent_quote_creation(client, seed_product):
 
     # All quote numbers should be unique
     assert len(set(numbers)) == 5
+
+
+@pytest.mark.asyncio
+async def test_update_quote(client, seed_quote, seed_product):
+    """PUT /api/quotes/{id} updates client info, replaces items, recomputes total."""
+    original_number = seed_quote.quote_number
+
+    update_payload = {
+        "client_name": "Cliente Actualizado",
+        "client_phone": "1199998888",
+        "items": [
+            {
+                "product_id": seed_product.id,
+                "description": "Producto nuevo",
+                "quantity": 5,
+                "unit_price": "50.00",
+            },
+            {
+                "description": "Item sin producto",
+                "quantity": 2,
+                "unit_price": "30.00",
+            },
+        ],
+    }
+
+    resp = await client.put(f"/api/quotes/{seed_quote.id}", json=update_payload)
+    assert resp.status_code == 200
+    data = resp.json()
+
+    # Client info updated
+    assert data["client_name"] == "Cliente Actualizado"
+    assert data["client_phone"] == "1199998888"
+
+    # Quote number preserved
+    assert data["quote_number"] == original_number
+
+    # Items replaced
+    assert len(data["items"]) == 2
+    assert data["items"][0]["description"] == "Producto nuevo"
+    assert data["items"][0]["quantity"] == 5
+    assert Decimal(data["items"][0]["unit_price"]) == Decimal("50.00")
+    assert Decimal(data["items"][0]["subtotal"]) == Decimal("250.00")
+
+    assert data["items"][1]["description"] == "Item sin producto"
+    assert data["items"][1]["quantity"] == 2
+    assert Decimal(data["items"][1]["unit_price"]) == Decimal("30.00")
+    assert Decimal(data["items"][1]["subtotal"]) == Decimal("60.00")
+
+    # Total recomputed: 250 + 60 = 310
+    assert Decimal(data["total"]) == Decimal("310.00")
+
+
+@pytest.mark.asyncio
+async def test_update_quote_not_found(client):
+    """PUT /api/quotes/{id} returns 404 for non-existent quote."""
+    update_payload = {
+        "client_name": "Test",
+        "items": [{"description": "Item", "quantity": 1, "unit_price": "10.00"}],
+    }
+    resp = await client.put("/api/quotes/99999", json=update_payload)
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_quote(client, seed_quote):
+    """DELETE /api/quotes/{id} removes quote and its items."""
+    quote_id = seed_quote.id
+
+    # Verify quote exists
+    resp = await client.get(f"/api/quotes/{quote_id}")
+    assert resp.status_code == 200
+
+    # Delete it
+    resp = await client.delete(f"/api/quotes/{quote_id}")
+    assert resp.status_code == 204
+
+    # Verify it's gone
+    resp = await client.get(f"/api/quotes/{quote_id}")
+    assert resp.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_quote_not_found(client):
+    """DELETE /api/quotes/{id} returns 404 for non-existent quote."""
+    resp = await client.delete("/api/quotes/99999")
+    assert resp.status_code == 404

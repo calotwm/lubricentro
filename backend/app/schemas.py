@@ -179,6 +179,12 @@ class QuoteCreate(BaseModel):
     items: List[QuoteItemCreate] = Field(..., min_length=1)
 
 
+class QuoteUpdate(BaseModel):
+    client_name: str = Field(..., max_length=200)
+    client_phone: Optional[str] = Field(None, max_length=50)
+    items: List[QuoteItemCreate] = Field(..., min_length=1)
+
+
 class QuoteItemRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

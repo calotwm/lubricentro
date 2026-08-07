@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { useQuotes, useQuote } from "../../hooks/useQuotes";
+import { useQuotes, useQuote, useDeleteQuote } from "../../hooks/useQuotes";
 import AlertBanner from "../../components/ui/AlertBanner";
 import { buildWhatsAppLink } from "../../utils/whatsapp";
 
@@ -21,6 +21,8 @@ function formatDate(iso: string): string {
 
 export default function QuotesListPage() {
   const { data, isLoading, error } = useQuotes();
+  const deleteQuote = useDeleteQuote();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   // WhatsApp: fetch quote detail on demand
   const [whatsappQuoteId, setWhatsappQuoteId] = useState<number | null>(null);
@@ -48,6 +50,17 @@ export default function QuotesListPage() {
     setWhatsappQuoteId(quoteId);
   };
 
+  const handleDelete = (quoteId: number, quoteNumber: string) => {
+    if (window.confirm(`¿Eliminar el presupuesto ${quoteNumber}?`)) {
+      setDeleteError(null);
+      deleteQuote.mutate(quoteId, {
+        onError: (err: Error) => {
+          setDeleteError(err.message || "Error al eliminar el presupuesto");
+        },
+      });
+    }
+  };
+
   if (isLoading) {
     return <p className="text-[rgba(255,255,255,0.72)]">Cargando presupuestos...</p>;
   }
@@ -70,6 +83,10 @@ export default function QuotesListPage() {
 
       {isWaError && (
         <AlertBanner message="Error al cargar el presupuesto para WhatsApp." variant="error" />
+      )}
+
+      {deleteError && (
+        <AlertBanner message={deleteError} variant="error" />
       )}
 
       <div className="glass-card overflow-x-auto">
@@ -135,6 +152,19 @@ export default function QuotesListPage() {
                         title="Enviar por WhatsApp"
                       >
                         {isWaLoading && whatsappQuoteId === q.id ? "..." : "WhatsApp"}
+                      </button>
+                      <Link
+                        to={`/quotes/${q.id}/edit`}
+                        className="rounded-full border border-[rgba(255,255,255,0.15)] px-3 py-1 text-xs font-medium text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
+                      >
+                        Editar
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(q.id, q.quote_number)}
+                        disabled={deleteQuote.isPending}
+                        className="rounded-full bg-[rgba(220,38,38,0.1)] px-3 py-1 text-xs font-medium text-[#ef4444] transition-all duration-200 hover:bg-[rgba(220,38,38,0.2)] disabled:opacity-50"
+                      >
+                        {deleteQuote.isPending ? "..." : "Eliminar"}
                       </button>
                     </div>
                   </td>
