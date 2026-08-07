@@ -93,7 +93,3 @@ export function useQuotePdf(quoteId: number) {
     enabled: false, // Only fetch on demand
   });
 }
-
-export function downloadQuotePdf(quoteNumber: string) {
-  window.open(`/api/quotes/${quoteNumber}/pdf`, "_blank");
-}

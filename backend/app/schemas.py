@@ -58,8 +58,6 @@ class ProductUpdate(BaseModel):
     unit: Optional[str] = Field(None, max_length=20)
     cost_price: Optional[Decimal] = None
     selling_price: Optional[Decimal] = None
-    current_stock: Optional[int] = None
-    min_stock: Optional[int] = None
     is_active: Optional[bool] = None
 
 
@@ -163,6 +161,7 @@ class BulkPriceUpdate(BaseModel):
     brand_id: Optional[int] = None
     category_id: Optional[int] = None
     percentage: Decimal = Field(..., gt=0, description="Percentage increase (e.g. 10 for 10%)")
+    note: Optional[str] = Field(None, max_length=200, description="Optional reason/note for the price change")
 
 
 # ── Quote ─────────────────────────────────────────────────────────────────────

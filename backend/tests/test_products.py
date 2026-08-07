@@ -125,12 +125,11 @@ async def test_update_product(client, seed_product):
     """Update a product's fields."""
     resp = await client.put(
         f"/api/products/{seed_product.id}",
-        json={"selling_price": "120.00", "current_stock": 15},
+        json={"selling_price": "120.00"},
     )
     assert resp.status_code == 200
     data = resp.json()
     assert data["selling_price"] == "120.00"
-    assert data["current_stock"] == 15
 
 
 @pytest.mark.asyncio

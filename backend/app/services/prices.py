@@ -44,7 +44,7 @@ async def record_price_changes(
 
 
 async def bulk_update_by_brand(
-    db: AsyncSession, brand_id: int, percentage: Decimal
+    db: AsyncSession, brand_id: int, percentage: Decimal, note: Optional[str] = None
 ) -> int:
     """
     Increase selling_price by percentage for all products of a brand.
@@ -70,7 +70,7 @@ async def bulk_update_by_brand(
         )
         pairs.append((product.id, old_price, new_price))
 
-    await record_price_changes(db, pairs, PriceChangeSource.BULK, reference=None)
+    await record_price_changes(db, pairs, PriceChangeSource.BULK, reference=note)
 
     # Now mutate
     count = 0
@@ -86,7 +86,7 @@ async def bulk_update_by_brand(
 
 
 async def bulk_update_by_category(
-    db: AsyncSession, category_id: int, percentage: Decimal
+    db: AsyncSession, category_id: int, percentage: Decimal, note: Optional[str] = None
 ) -> int:
     """
     Increase selling_price by percentage for all products of a category.
@@ -112,7 +112,7 @@ async def bulk_update_by_category(
         )
         pairs.append((product.id, old_price, new_price))
 
-    await record_price_changes(db, pairs, PriceChangeSource.BULK, reference=None)
+    await record_price_changes(db, pairs, PriceChangeSource.BULK, reference=note)
 
     # Now mutate
     count = 0

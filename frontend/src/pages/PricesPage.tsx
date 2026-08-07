@@ -11,6 +11,7 @@ export default function PricesPage() {
   const [filterType, setFilterType] = useState<"brand" | "category">("brand");
   const [selectedId, setSelectedId] = useState("");
   const [percentage, setPercentage] = useState("");
+  const [note, setNote] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -38,8 +39,8 @@ export default function PricesPage() {
 
     const payload =
       filterType === "brand"
-        ? { brand_id: Number(selectedId), percentage }
-        : { category_id: Number(selectedId), percentage };
+        ? { brand_id: Number(selectedId), percentage, note: note || null }
+        : { category_id: Number(selectedId), percentage, note: note || null };
 
     bulkUpdate.mutate(payload, {
       onSuccess: (data) => {
@@ -48,6 +49,7 @@ export default function PricesPage() {
         );
         setSelectedId("");
         setPercentage("");
+        setNote("");
       },
       onError: (err: Error) => setError(err.message),
     });
@@ -141,6 +143,18 @@ export default function PricesPage() {
               value={percentage}
               onChange={(e) => setPercentage(e.target.value)}
               placeholder="Ej: 10 para +10%"
+              className={inputClass}
+            />
+          </div>
+
+          {/* Note / Reason */}
+          <div>
+            <label className={labelClass}>Motivo / Nota (opcional)</label>
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Ej: Ajuste trimestral, inflación, etc."
               className={inputClass}
             />
           </div>

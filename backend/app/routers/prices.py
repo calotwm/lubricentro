@@ -30,9 +30,9 @@ async def bulk_price_update(
         )
 
     if data.brand_id is not None:
-        count = await price_service.bulk_update_by_brand(db, data.brand_id, data.percentage)
+        count = await price_service.bulk_update_by_brand(db, data.brand_id, data.percentage, note=data.note)
     else:
-        count = await price_service.bulk_update_by_category(db, data.category_id, data.percentage)
+        count = await price_service.bulk_update_by_category(db, data.category_id, data.percentage, note=data.note)
 
     return {"updated": count, "percentage": data.percentage}
 

@@ -113,6 +113,7 @@ export function useBulkPriceUpdate() {
       brand_id?: number | null;
       category_id?: number | null;
       percentage: string;
+      note?: string | null;
     }) => api.put<{ updated: number; percentage: string }>("/prices/bulk", data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });

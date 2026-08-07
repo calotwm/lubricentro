@@ -30,8 +30,6 @@ export default function ProductFormPage() {
     unit: "unit",
     cost_price: "",
     selling_price: "",
-    current_stock: "0",
-    min_stock: "0",
   });
   const [submitError, setSubmitError] = useState("");
 
@@ -46,8 +44,6 @@ export default function ProductFormPage() {
         unit: product.unit,
         cost_price: product.cost_price ?? "",
         selling_price: product.selling_price ?? "",
-        current_stock: String(product.current_stock),
-        min_stock: String(product.min_stock),
       });
     }
   }, [product]);
@@ -69,8 +65,6 @@ export default function ProductFormPage() {
       unit: form.unit,
       cost_price: form.cost_price || null,
       selling_price: form.selling_price || null,
-      current_stock: Number(form.current_stock) || 0,
-      min_stock: Number(form.min_stock) || 0,
     };
 
     if (isEdit && productId) {
@@ -207,28 +201,15 @@ export default function ProductFormPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div>
-            <label className={labelClass}>Stock Actual</label>
-            <input
-              type="number"
-              min="0"
-              value={form.current_stock}
-              onChange={(e) => handleChange("current_stock", e.target.value)}
-              className={inputClass}
-            />
+        {/* Stock display (read-only) — only shown when editing */}
+        {isEdit && product && (
+          <div className="rounded-[12px] bg-[#0a0a0a] p-4">
+            <p className="text-sm text-[rgba(255,255,255,0.72)]">
+              <span className="font-semibold text-white">Stock actual:</span>{" "}
+              {product.current_stock}
+            </p>
           </div>
-          <div>
-            <label className={labelClass}>Stock Minimo</label>
-            <input
-              type="number"
-              min="0"
-              value={form.min_stock}
-              onChange={(e) => handleChange("min_stock", e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-4">
           <button
