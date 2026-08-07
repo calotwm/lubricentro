@@ -60,7 +60,7 @@ export default function PricesPage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+      <div className="glass-card p-8">
         <h2 className="mb-4 text-lg tracking-tight text-white">
           Actualizacion Masiva de Precios
         </h2>

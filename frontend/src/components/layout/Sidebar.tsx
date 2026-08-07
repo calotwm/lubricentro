@@ -16,7 +16,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-2">
           <span className="h-2.5 w-2.5 rounded-full bg-[#dc2626]" />
           <span className="font-['Space_Grotesk'] text-base font-semibold tracking-wide text-white">
-            LUBRICENTRO <span className="text-[#dc2626]">G&amp;G</span>
+            <span className="text-[#dc2626]">L</span>UBRICENTRO
           </span>
         </div>
       </div>

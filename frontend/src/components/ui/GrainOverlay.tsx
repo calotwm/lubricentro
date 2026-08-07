@@ -11,7 +11,7 @@ export default function GrainOverlay() {
         backgroundImage: GRAIN_URI,
         backgroundRepeat: "repeat",
         backgroundSize: "256px 256px",
-        opacity: 0.15,
+        opacity: 0.08,
         mixBlendMode: "screen",
       }}
     />

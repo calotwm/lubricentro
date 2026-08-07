@@ -17,7 +17,7 @@ export default function Header() {
 
   const title = pathname.match(/\/products\/\d+\/edit/)
     ? "Editar Producto"
-    : (titleMap[pathname] ?? "Lubricentro G&G");
+    : (titleMap[pathname] ?? "Lubricentro");
 
   return (
     <header className="flex h-16 items-center border-b border-[rgba(255,255,255,0.12)] bg-black px-8">

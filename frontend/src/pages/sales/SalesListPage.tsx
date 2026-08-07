@@ -16,7 +16,7 @@ function formatDate(iso: string): string {
 function formatCurrency(value: string): string {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "USD",
+    currency: "ARS",
   }).format(parseFloat(value));
 }
 
@@ -52,7 +52,7 @@ export default function SalesListPage() {
         </Link>
       </div>
 
-      <div className="overflow-x-auto rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a]">
+      <div className="glass-card overflow-x-auto">
         <table className="w-full text-left text-sm">
           <thead>
             <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">

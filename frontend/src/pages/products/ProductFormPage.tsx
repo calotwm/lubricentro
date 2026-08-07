@@ -104,7 +104,7 @@ export default function ProductFormPage() {
     <div className="mx-auto max-w-2xl">
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8"
+        className="glass-card space-y-6 p-8"
       >
         {submitError && <AlertBanner message={submitError} variant="error" />}
 

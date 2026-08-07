@@ -85,7 +85,7 @@ export default function ReceivePage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       {/* Add line form */}
-      <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8">
+      <div className="glass-card p-8">
         <h2 className="mb-4 text-lg tracking-tight text-white">
           Agregar Articulo
         </h2>
@@ -149,7 +149,7 @@ export default function ReceivePage() {
 
       {/* Lines table */}
       {lines.length > 0 && (
-        <div className="overflow-x-auto rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a]">
+        <div className="glass-card overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">

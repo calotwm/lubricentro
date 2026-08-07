@@ -10,7 +10,7 @@ import AlertBanner from "../components/ui/AlertBanner";
 function formatCurrency(value: string): string {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "USD",
+    currency: "ARS",
   }).format(parseFloat(value));
 }
 
@@ -88,7 +88,7 @@ export default function ReportsPage() {
           {loadingBest ? (
             <p className="text-[rgba(255,255,255,0.72)]">Cargando...</p>
           ) : (
-            <div className="overflow-x-auto rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a]">
+            <div className="glass-card overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
@@ -153,7 +153,7 @@ export default function ReportsPage() {
           {loadingReorder ? (
             <p className="text-[rgba(255,255,255,0.72)]">Cargando...</p>
           ) : (
-            <div className="overflow-x-auto rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a]">
+            <div className="glass-card overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
@@ -219,7 +219,7 @@ export default function ReportsPage() {
             <p className="text-[rgba(255,255,255,0.72)]">Cargando...</p>
           ) : profit ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
+              <div className="glass-card glass-card-hover p-8">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">
                   Ingresos Totales
                 </p>
@@ -227,7 +227,7 @@ export default function ReportsPage() {
                   {formatCurrency(profit.total_revenue)}
                 </p>
               </div>
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
+              <div className="glass-card glass-card-hover p-8">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">
                   Costo Total
                 </p>
@@ -235,7 +235,7 @@ export default function ReportsPage() {
                   {formatCurrency(profit.total_cost)}
                 </p>
               </div>
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
+              <div className="glass-card glass-card-hover p-8">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">
                   Ganancia Bruta
                 </p>
@@ -243,7 +243,7 @@ export default function ReportsPage() {
                   {formatCurrency(profit.gross_profit)}
                 </p>
               </div>
-              <div className="rounded-[20px] border border-[rgba(255,255,255,0.12)] bg-[#16181a] p-8 transition-all duration-200 hover:-translate-y-0.5 hover:border-[rgba(255,255,255,0.25)] hover:bg-[#1a1c20]">
+              <div className="glass-card glass-card-hover p-8">
                 <p className="text-sm text-[rgba(255,255,255,0.72)]">Margen</p>
                 <p className="mt-1 text-xl font-medium tracking-tight text-[#ef4444]">
                   {parseFloat(profit.margin_percentage).toFixed(2)}%
