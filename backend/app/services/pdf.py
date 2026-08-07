@@ -14,7 +14,7 @@ _FONT_PATH = str(Path(__file__).resolve().parent.parent / "assets" / "DejaVuSans
 # Business info from env vars with defaults
 BUSINESS_NAME = "Lubricentro G&G"
 BUSINESS_PHONE = os.environ.get("BUSINESS_PHONE", "11-XXXX-XXXX")
-BUSINESS_ADDRESS = os.environ.get("BUSINESS_ADDRESS", "Direccion a confirmar")
+BUSINESS_ADDRESS = os.environ.get("BUSINESS_ADDRESS", "Dirección a confirmar")
 
 
 class QuotePDF(FPDF):

@@ -102,7 +102,7 @@ export default function DashboardPage() {
           <span className="text-[#dc2626]">L</span>ubricentro
         </h2>
         <p className="mt-2 text-sm text-[rgba(255,255,255,0.55)]">
-          Gestion de inventario y precios
+          Gestion de precios y presupuestos
         </p>
       </div>
 

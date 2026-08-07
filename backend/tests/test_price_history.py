@@ -1,8 +1,10 @@
 """Tests for price history recording across all mutation paths."""
 
 from decimal import Decimal
+from io import BytesIO
 
 import pytest
+from openpyxl import Workbook
 
 
 @pytest.mark.asyncio
@@ -133,3 +135,45 @@ async def test_dashboard_new_kpis(client, seed_product, seed_price_history, seed
     assert data["total_brands"] >= 1
     assert len(data["recent_price_changes"]) >= 1
     assert len(data["recent_quotes"]) >= 1
+
+
+@pytest.mark.asyncio
+async def test_excel_import_records_price_history(client, seed_product, db_session):
+    """Excel import creates price_history rows when selling_price changes (source=excel)."""
+    from app.services.excel_import import import_from_excel
+
+    original_price = seed_product.selling_price  # 100.00
+    new_price = Decimal("130.00")
+
+    # Create an in-memory Excel file with the seed product's SKU and a new price
+    wb = Workbook()
+    ws = wb.active
+    ws.append(["SKU", "Nombre", "Precio Venta"])
+    ws.append([seed_product.sku, seed_product.name, float(new_price)])
+
+    # Convert to bytes
+    excel_buffer = BytesIO()
+    wb.save(excel_buffer)
+    excel_bytes = excel_buffer.getvalue()
+
+    # Call import_from_excel directly
+    result = await import_from_excel(db_session, excel_bytes)
+
+    # Verify the import updated the product
+    assert result["updated"] >= 1
+
+    # Verify price_history row was created with source=excel
+    resp = await client.get("/api/reports/price-history")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["total"] >= 1
+
+    # Find the excel-sourced entry
+    excel_entries = [item for item in data["items"] if item["source"] == "excel"]
+    assert len(excel_entries) >= 1
+
+    entry = excel_entries[0]
+    assert entry["product_name"] == seed_product.name
+    assert Decimal(entry["old_price"]) == original_price
+    assert Decimal(entry["new_price"]) == new_price
+    assert entry["source"] == "excel"
