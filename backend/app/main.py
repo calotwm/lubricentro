@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
 from app.database import init_db
-from app.routers import brands, categories, prices, products, quotes, reports, sales, stock
+from app.routers import brands, categories, prices, products, quotes, reports
 
 
 @asynccontextmanager
@@ -37,8 +37,6 @@ app.add_middleware(
 app.include_router(products.router, prefix="/api")
 app.include_router(categories.router, prefix="/api")
 app.include_router(brands.router, prefix="/api")
-app.include_router(stock.router, prefix="/api")
-app.include_router(sales.router, prefix="/api")
 app.include_router(prices.router, prefix="/api")
 app.include_router(reports.router, prefix="/api")
 app.include_router(quotes.router, prefix="/api")
