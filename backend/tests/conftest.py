@@ -6,15 +6,21 @@ share the same database. Tables are created once per session and data
 is cleaned up after each test.
 """
 
+import os
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
+# Set JWT_SECRET_KEY before importing app modules
+os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-not-for-production")
+os.environ.setdefault("ALLOWED_ORIGINS", "http://localhost:5173")
+
 from app.database import get_db
 from app.main import app
 from app.models import Base
+from app.security.auth import require_user
 
 
 # ---------------------------------------------------------------------------
@@ -62,7 +68,10 @@ async def db_session(engine):
 
 @pytest_asyncio.fixture
 async def client(db_session):
-    """Provide an async HTTP test client with overridden DB dependency."""
+    """Provide an async HTTP test client with overridden DB dependency.
+
+    Also overrides require_user to bypass auth for existing tests.
+    """
 
     async def override_get_db():
         try:
@@ -72,13 +81,26 @@ async def client(db_session):
             await db_session.rollback()
             raise
 
+    async def override_require_user():
+        """Bypass auth for existing tests — return a fake admin user."""
+        return {"sub": "test-admin", "role": "admin"}
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[require_user] = override_require_user
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
 
     app.dependency_overrides.clear()
+
+
+@pytest_asyncio.fixture
+async def auth_headers():
+    """Provide Authorization headers with a valid JWT for tests that need real auth."""
+    from app.security.auth import create_access_token
+    token = create_access_token({"sub": "admin", "role": "admin"})
+    return {"Authorization": f"Bearer {token}"}
 
 
 # ---------------------------------------------------------------------------

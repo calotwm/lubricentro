@@ -57,7 +57,7 @@ async def bulk_update_by_brand(
         Product.brand_id == brand_id,
         Product.is_active.is_(True),
         Product.selling_price.isnot(None),
-    )
+    ).with_for_update()
     result = await db.execute(query)
     products = result.scalars().unique().all()
 
@@ -99,7 +99,7 @@ async def bulk_update_by_category(
         Product.category_id == category_id,
         Product.is_active.is_(True),
         Product.selling_price.isnot(None),
-    )
+    ).with_for_update()
     result = await db.execute(query)
     products = result.scalars().unique().all()
 
