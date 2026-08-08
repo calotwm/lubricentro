@@ -4,19 +4,22 @@ import csv
 import io
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.security.auth import require_user
+from app.security.settings import limiter
 from app.services import reports as report_service
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 @router.get("/dashboard")
+@limiter.limit("60/minute")
 async def dashboard(
+    request: Request,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),
 ):
@@ -25,7 +28,9 @@ async def dashboard(
 
 
 @router.get("/price-history")
+@limiter.limit("60/minute")
 async def price_history(
+    request: Request,
     product_id: Optional[int] = Query(None),
     brand_id: Optional[int] = Query(None),
     date_from: Optional[str] = Query(None),
@@ -51,7 +56,9 @@ async def price_history(
 
 
 @router.get("/price-history/csv")
+@limiter.limit("60/minute")
 async def price_history_csv(
+    request: Request,
     product_id: Optional[int] = Query(None),
     brand_id: Optional[int] = Query(None),
     date_from: Optional[str] = Query(None),

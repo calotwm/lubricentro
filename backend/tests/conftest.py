@@ -15,6 +15,7 @@ from sqlalchemy.pool import StaticPool
 
 # Set JWT_SECRET_KEY before importing app modules
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-not-for-production")
+os.environ.setdefault("ALLOWED_ORIGINS", "http://localhost:5173")
 
 from app.database import get_db
 from app.main import app

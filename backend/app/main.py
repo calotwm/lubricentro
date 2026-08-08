@@ -7,14 +7,12 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
 from starlette.responses import FileResponse
 
 from app.database import async_session, init_db
 from app.routers import auth, brands, categories, prices, products, quotes, reports
-from app.security.settings import get_settings
+from app.security.settings import get_settings, limiter
 from app.security.users import ensure_admin_user
 
 logger = logging.getLogger(__name__)
@@ -37,11 +35,24 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Rate limiter
+# Rate limiter — shared instance from settings for consistent state + Retry-After
 settings = get_settings()
-limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
+# Custom exception handler to ensure Retry-After header is always present (RL-3)
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+    """Handle rate limit exceeded with Retry-After header."""
+    # Calculate retry-after from the exception
+    retry_after = int(exc.retry_after) if hasattr(exc, 'retry_after') and exc.retry_after else 60
+    
+    response = JSONResponse(
+        {"error": f"Rate limit exceeded: {exc.detail}"},
+        status_code=429,
+    )
+    response.headers["Retry-After"] = str(retry_after)
+    return response
 
 # CORS — env-configurable allowlist
 app.add_middleware(

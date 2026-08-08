@@ -1,18 +1,21 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas import ProductCreate, ProductList, ProductRead, ProductUpdate
 from app.security.auth import require_user
+from app.security.settings import limiter
 from app.services import products as product_service
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 
 @router.get("", response_model=ProductList)
+@limiter.limit("60/minute")
 async def list_products(
+    request: Request,
     search: Optional[str] = Query(None, description="Search by name, brand, SKU, or spec"),
     category_id: Optional[int] = Query(None),
     brand_id: Optional[int] = Query(None),
@@ -31,7 +34,9 @@ async def list_products(
 
 
 @router.post("", response_model=ProductRead, status_code=201)
+@limiter.limit("60/minute")
 async def create_product(
+    request: Request,
     data: ProductCreate,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),
@@ -42,7 +47,9 @@ async def create_product(
 
 
 @router.get("/{product_id}", response_model=ProductRead)
+@limiter.limit("60/minute")
 async def get_product(
+    request: Request,
     product_id: int,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),
@@ -55,7 +62,9 @@ async def get_product(
 
 
 @router.put("/{product_id}", response_model=ProductRead)
+@limiter.limit("60/minute")
 async def update_product(
+    request: Request,
     product_id: int,
     data: ProductUpdate,
     db: AsyncSession = Depends(get_db),
@@ -69,7 +78,9 @@ async def update_product(
 
 
 @router.delete("/{product_id}", status_code=204)
+@limiter.limit("60/minute")
 async def delete_product(
+    request: Request,
     product_id: int,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),

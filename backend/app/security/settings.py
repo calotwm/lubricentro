@@ -3,6 +3,9 @@
 import os
 from typing import List
 
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
 
 class Settings:
     """Security configuration loaded from environment variables."""
@@ -28,3 +31,8 @@ class Settings:
 def get_settings() -> Settings:
     """Return a fresh Settings instance (reads env vars each call)."""
     return Settings()
+
+
+# Shared rate limiter instance — used by all routers and main.py
+# This ensures consistent rate limit state and proper Retry-After header injection
+limiter = Limiter(key_func=get_remote_address)

@@ -1,16 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas import BulkPriceUpdate, ExcelImportResult
 from app.security.auth import require_user
+from app.security.settings import limiter
 from app.services import prices as price_service
 
 router = APIRouter(prefix="/prices", tags=["prices"])
 
 
 @router.put("/bulk")
+@limiter.limit("60/minute")
 async def bulk_price_update(
+    request: Request,
     data: BulkPriceUpdate,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),
@@ -40,7 +43,9 @@ async def bulk_price_update(
 
 
 @router.post("/import-excel", response_model=ExcelImportResult)
+@limiter.limit("60/minute")
 async def import_excel_prices(
+    request: Request,
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),

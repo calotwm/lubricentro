@@ -1,8 +1,6 @@
 """Auth router: POST /api/auth/login."""
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,9 +8,9 @@ from app.database import get_db
 from app.models import User
 from app.schemas import LoginRequest
 from app.security.auth import create_access_token, verify_password
+from app.security.settings import limiter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/login")

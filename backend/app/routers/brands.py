@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,12 +8,15 @@ from app.database import get_db
 from app.models import Brand
 from app.schemas import BrandCreate, BrandRead
 from app.security.auth import require_user
+from app.security.settings import limiter
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
 
 @router.get("", response_model=List[BrandRead])
+@limiter.limit("60/minute")
 async def list_brands(
+    request: Request,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),
 ):
@@ -23,7 +26,9 @@ async def list_brands(
 
 
 @router.post("", response_model=BrandRead, status_code=201)
+@limiter.limit("60/minute")
 async def create_brand(
+    request: Request,
     data: BrandCreate,
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(require_user),
