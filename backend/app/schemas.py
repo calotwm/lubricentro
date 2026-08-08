@@ -260,3 +260,10 @@ class ExcelImportResult(BaseModel):
     created: int
     skipped: int
     errors: List[str]
+
+
+# ── Auth ──────────────────────────────────────────────────────────────────────
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str

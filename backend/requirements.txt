@@ -13,3 +13,6 @@ pypdf==4.3.1
 pytest>=8.0.0
 pytest-asyncio>=0.24.0
 httpx>=0.28.0
+PyJWT>=2.8
+passlib[bcrypt]>=1.7
+slowapi>=0.1

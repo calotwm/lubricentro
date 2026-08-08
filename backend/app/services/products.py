@@ -72,7 +72,9 @@ async def update_product(
     db: AsyncSession, product_id: int, data: ProductUpdate
 ) -> Optional[Product]:
     """Partial update of a product."""
-    product = await get_product(db, product_id)
+    query = select(Product).where(Product.id == product_id).with_for_update()
+    result = await db.execute(query)
+    product = result.scalars().unique().first()
     if not product:
         return None
 
