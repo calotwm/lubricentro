@@ -1,3 +1,5 @@
+import { getToken, clearToken, navigate } from "../auth/tokenStore";
+
 const BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
 
 export class ApiError extends Error {
@@ -23,6 +25,14 @@ async function request<T>(
   const url = `${BASE_URL}${path}`;
   const headers: Record<string, string> = { "Content-Type": "application/json" };
 
+  // Attach Bearer token for all requests except login
+  if (path !== "/auth/login") {
+    const token = getToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
   const res = await fetch(url, {
     method,
     headers,
@@ -30,6 +40,12 @@ async function request<T>(
   });
 
   if (!res.ok) {
+    // On 401 (expired/invalid token), clear auth and redirect — but NOT for login itself
+    if (res.status === 401 && path !== "/auth/login") {
+      clearToken();
+      navigate("/login");
+    }
+
     let body: unknown;
     try {
       body = await res.json();

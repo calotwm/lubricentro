@@ -45,7 +45,7 @@ export default function ReportsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg tracking-tight text-white">Historial de Precios</h2>
         <button
-          onClick={() => handleExportCsv(filters)}
+          onClick={() => handleExportCsv(filters).catch(() => {})}
           className="rounded-full border border-[rgba(255,255,255,0.15)] px-5 py-2 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/10 hover:border-white/30"
         >
           Exportar CSV
