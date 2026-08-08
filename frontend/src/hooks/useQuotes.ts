@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
+import { getToken } from "../auth/tokenStore";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -110,7 +111,10 @@ export function useQuotePdf(quoteId: number) {
   return useQuery({
     queryKey: ["quote-pdf", quoteId],
     queryFn: async () => {
-      const res = await fetch(`/api/quotes/${quoteId}/pdf`);
+      const token = getToken();
+      const res = await fetch(`/api/quotes/${quoteId}/pdf`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       if (!res.ok) throw new Error(`Error ${res.status}`);
       return res.blob();
     },

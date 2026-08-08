@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
+import { getToken } from "../auth/tokenStore";
 
 // ── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -94,14 +95,24 @@ export function getPriceHistoryCsvUrl(filters: PriceHistoryFilters = {}): string
   return `/api/reports/price-history/csv?${params}`;
 }
 
-export function handleExportCsv(filters: PriceHistoryFilters = {}) {
+export async function handleExportCsv(filters: PriceHistoryFilters = {}) {
   const today = new Date().toISOString().split("T")[0];
   const filename = `historial_precios_${today}.csv`;
   const url = getPriceHistoryCsvUrl(filters);
+  const token = getToken();
+
+  const res = await fetch(url, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+  if (!res.ok) throw new Error(`Export failed with status ${res.status}`);
+
+  const blob = await res.blob();
+  const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
+  a.href = objectUrl;
   a.download = filename;
   a.click();
+  URL.revokeObjectURL(objectUrl);
 }
 
 // ── Bulk Price Update (unchanged) ────────────────────────────────────────────
@@ -136,8 +147,10 @@ export function useImportExcel() {
     mutationFn: async (file: File): Promise<ExcelImportResult> => {
       const form = new FormData();
       form.append("file", file);
+      const token = getToken();
       const res = await fetch("/api/prices/import-excel", {
         method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: form,
       });
       if (!res.ok) {
