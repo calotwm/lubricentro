@@ -1,19 +1,32 @@
+import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from starlette.responses import FileResponse
 
-from app.database import init_db
-from app.routers import brands, categories, prices, products, quotes, reports
+from app.database import async_session, init_db
+from app.routers import auth, brands, categories, prices, products, quotes, reports
+from app.security.settings import get_settings
+from app.security.users import ensure_admin_user
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: create database tables."""
+    """Startup: create database tables and seed admin user."""
     await init_db()
+    async with async_session() as db:
+        await ensure_admin_user(db)
+        await db.commit()
     yield
 
 
@@ -24,16 +37,23 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS
+# Rate limiter
+settings = get_settings()
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# CORS — env-configurable allowlist
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Register API routers
+app.include_router(auth.router, prefix="/api")
 app.include_router(products.router, prefix="/api")
 app.include_router(categories.router, prefix="/api")
 app.include_router(brands.router, prefix="/api")
@@ -43,21 +63,21 @@ app.include_router(quotes.router, prefix="/api")
 
 
 @app.get("/health")
-async def health_check():
-    """Simple health check endpoint."""
+@limiter.exempt
+async def health_check(request: Request):
+    """Simple health check endpoint — exempt from auth and rate limiting."""
     return {"status": "ok"}
 
 
 # Serve built frontend as static files (produccion)
 FRONTEND_DIST = Path(__file__).resolve().parent.parent.parent / "frontend" / "dist"
-if FRONTEND_DIST.exists():
+if FRONTEND_DIST.exists() and (FRONTEND_DIST / "assets").is_dir():
     app.mount("/assets", StaticFiles(directory=str(FRONTEND_DIST / "assets")), name="assets")
 
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
         """Catch-all: serve index.html for SPA routing."""
         if full_path.startswith("api/") or full_path == "health":
-            from fastapi.responses import JSONResponse
             return JSONResponse(status_code=404, content={"detail": "Not found"})
         index_path = FRONTEND_DIST / "index.html"
         if index_path.exists():

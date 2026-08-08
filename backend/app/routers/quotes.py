@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas import QuoteCreate, QuoteListResponse, QuoteRead, QuoteUpdate
+from app.security.auth import require_user
 from app.services import quotes as quote_service
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/quotes", tags=["quotes"])
 async def create_quote(
     data: QuoteCreate,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Create a new quote with items."""
     quote = await quote_service.create_quote(db, data)
@@ -26,6 +28,7 @@ async def list_quotes(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """List quotes paginated."""
     items, total = await quote_service.list_quotes(db, skip=skip, limit=limit)
@@ -37,6 +40,7 @@ async def list_quotes(
 async def get_quote(
     quote_id: int,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Get a single quote with items."""
     quote = await quote_service.get_quote(db, quote_id)
@@ -50,6 +54,7 @@ async def update_quote(
     quote_id: int,
     data: QuoteUpdate,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Update an existing quote: client info + replace items, recompute total."""
     quote = await quote_service.update_quote(db, quote_id, data)
@@ -62,6 +67,7 @@ async def update_quote(
 async def delete_quote(
     quote_id: int,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Delete a quote and its items."""
     deleted = await quote_service.delete_quote(db, quote_id)
@@ -74,6 +80,7 @@ async def delete_quote(
 async def get_quote_pdf(
     quote_id: int,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Download quote as PDF."""
     pdf_buffer = await quote_service.get_quote_pdf(db, quote_id)

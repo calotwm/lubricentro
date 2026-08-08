@@ -9,13 +9,17 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.security.auth import require_user
 from app.services import reports as report_service
 
 router = APIRouter(prefix="/reports", tags=["reports"])
 
 
 @router.get("/dashboard")
-async def dashboard(db: AsyncSession = Depends(get_db)):
+async def dashboard(
+    db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
+):
     """Dashboard KPIs: total products, total brands, recent price changes, recent quotes."""
     return await report_service.get_dashboard(db)
 
@@ -30,6 +34,7 @@ async def price_history(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Get filtered price history."""
     items, total = await report_service.get_price_history(
@@ -53,6 +58,7 @@ async def price_history_csv(
     date_to: Optional[str] = Query(None),
     source: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Download price history as CSV with date-stamped filename."""
     items, filename = await report_service.get_price_history_csv(

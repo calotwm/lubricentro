@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
 from app.schemas import BulkPriceUpdate, ExcelImportResult
+from app.security.auth import require_user
 from app.services import prices as price_service
 
 router = APIRouter(prefix="/prices", tags=["prices"])
@@ -12,6 +13,7 @@ router = APIRouter(prefix="/prices", tags=["prices"])
 async def bulk_price_update(
     data: BulkPriceUpdate,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """
     Bulk update selling prices by percentage.
@@ -41,6 +43,7 @@ async def bulk_price_update(
 async def import_excel_prices(
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """
     Import prices (and optionally new products) from an Excel (.xlsx) file.

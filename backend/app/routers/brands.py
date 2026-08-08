@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import Brand
 from app.schemas import BrandCreate, BrandRead
+from app.security.auth import require_user
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
@@ -14,6 +15,7 @@ router = APIRouter(prefix="/brands", tags=["brands"])
 @router.get("", response_model=List[BrandRead])
 async def list_brands(
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """List all brands."""
     result = await db.execute(select(Brand).order_by(Brand.name))
@@ -24,6 +26,7 @@ async def list_brands(
 async def create_brand(
     data: BrandCreate,
     db: AsyncSession = Depends(get_db),
+    _user: dict = Depends(require_user),
 ):
     """Create a new brand. Name must be unique."""
     existing = await db.execute(
