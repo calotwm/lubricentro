@@ -97,7 +97,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-10">
       {/* Hero header area */}
-      <div className="-mx-8 -mt-8 px-8 pt-8 pb-2">
+      <div className="-mx-4 -mt-4 px-4 pt-4 pb-2 md:-mx-8 md:-mt-8 md:px-8 md:pt-8">
         <h2 className="font-['Space_Grotesk'] text-4xl font-semibold tracking-tight text-white">
           <span className="text-[#dc2626]">L</span>ubricentro
         </h2>
@@ -166,7 +166,7 @@ export default function DashboardPage() {
             Cambios de Precio Recientes
           </h2>
           <div className="glass-card overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[600px] text-left text-sm">
               <thead>
                 <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
                   <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">Producto</th>
@@ -201,7 +201,7 @@ export default function DashboardPage() {
         <div className="space-y-3">
           <h2 className="text-lg tracking-tight text-white">Presupuestos Recientes</h2>
           <div className="glass-card overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[600px] text-left text-sm">
               <thead>
                 <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
                   <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">Numero</th>

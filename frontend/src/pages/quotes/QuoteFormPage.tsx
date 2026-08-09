@@ -274,8 +274,8 @@ export default function QuoteFormPage() {
         </div>
 
         {items.map((item, index) => (
-          <div key={index} className="grid grid-cols-12 gap-3 items-end">
-            <div className="col-span-4">
+          <div key={index} className={`grid grid-cols-1 gap-3 sm:grid-cols-12 sm:items-end ${index > 0 ? "border-b border-[rgba(255,255,255,0.08)] pb-4" : ""}`}>
+            <div className="col-span-1 sm:col-span-4">
               <label className="mb-1 block text-xs text-[rgba(255,255,255,0.45)]">
                 Producto
               </label>
@@ -297,7 +297,7 @@ export default function QuoteFormPage() {
                 ))}
               </select>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-1 sm:col-span-3">
               <label className="mb-1 block text-xs text-[rgba(255,255,255,0.45)]">
                 Descripcion
               </label>
@@ -309,7 +309,7 @@ export default function QuoteFormPage() {
                 className={inputClass}
               />
             </div>
-            <div className="col-span-2">
+            <div className="col-span-1 sm:col-span-2">
               <label className="mb-1 block text-xs text-[rgba(255,255,255,0.45)]">
                 Cantidad
               </label>
@@ -321,7 +321,7 @@ export default function QuoteFormPage() {
                 className={inputClass}
               />
             </div>
-            <div className="col-span-2">
+            <div className="col-span-1 sm:col-span-2">
               <label className="mb-1 block text-xs text-[rgba(255,255,255,0.45)]">
                 P. Unit.
               </label>
@@ -334,7 +334,7 @@ export default function QuoteFormPage() {
                 className={inputClass}
               />
             </div>
-            <div className="col-span-1 flex items-center justify-end">
+            <div className="col-span-1 flex items-center justify-end sm:col-span-1">
               <button
                 onClick={() => removeItem(index)}
                 className="rounded-full bg-[rgba(220,38,38,0.1)] px-2 py-1 text-xs font-medium text-[#ef4444] transition-all duration-200 hover:bg-[rgba(220,38,38,0.2)]"

@@ -109,7 +109,7 @@ export default function ProductListPage() {
             </option>
           ))}
         </select>
-        <div className="ml-auto">
+        <div className="sm:ml-auto">
           <Link
             to="/products/new"
             className="inline-flex items-center rounded-full bg-[linear-gradient(135deg,#dc2626,#991b1b)] px-6 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:brightness-110 hover:shadow-[0_0_20px_rgba(220,38,38,0.25)] active:scale-[0.98]"
