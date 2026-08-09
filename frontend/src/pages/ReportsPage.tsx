@@ -127,7 +127,7 @@ export default function ReportsPage() {
         <AlertBanner message="Error al cargar historial." variant="error" />
       ) : (
         <div className="glass-card overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[800px] text-left text-sm">
             <thead>
               <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
                 <th className="px-4 py-3 text-sm font-medium text-[rgba(255,255,255,0.45)]">

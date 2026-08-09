@@ -20,9 +20,9 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-stretch sm:items-center sm:justify-center">
       <div className="fixed inset-0 bg-black/70" onClick={onClose} />
-      <div className="glass-card relative z-10 w-full max-w-lg p-8">
+      <div className="glass-card relative z-10 w-full max-w-none rounded-none p-4 sm:max-w-lg sm:rounded-xl sm:p-8">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-lg tracking-tight text-white">{title}</h2>
           <button

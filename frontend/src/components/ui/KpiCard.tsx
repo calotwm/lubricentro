@@ -6,7 +6,7 @@ interface KpiCardProps {
 
 export default function KpiCard({ label, value, subtitle }: KpiCardProps) {
   return (
-    <div className="glass-card glass-card-hover group relative overflow-hidden p-8">
+    <div className="glass-card glass-card-hover group relative overflow-hidden p-4 md:p-8">
       {/* Gradient sheen overlay */}
       <div
         className="pointer-events-none absolute inset-0"

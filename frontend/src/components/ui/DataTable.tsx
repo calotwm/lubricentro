@@ -81,7 +81,7 @@ export default function DataTable<T>({
           />
         ))}
       <div className="glass-card overflow-x-auto">
-        <table className="w-full text-left text-sm">
+        <table className="w-full min-w-[600px] text-left text-sm">
           <thead>
             <tr className="border-b border-[rgba(255,255,255,0.12)] bg-[#0a0a0a]">
               {columns.map((col) => (
