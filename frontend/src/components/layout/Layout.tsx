@@ -25,7 +25,7 @@ export default function Layout() {
   return (
     <div className="flex h-screen overflow-hidden">
       <GrainOverlay />
-      <div className="relative z-10">
+      <div className="relative z-[110] md:z-10">
         <Sidebar isOpen={isDrawerOpen} onClose={closeDrawer} />
       </div>
       <div className="relative z-10 flex flex-1 flex-col overflow-hidden">

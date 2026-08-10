@@ -19,7 +19,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Backdrop — visible only below md when drawer is open */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-[110] bg-black/60 md:hidden"
           onClick={onClose}
           aria-hidden="true"
         />
@@ -28,8 +28,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       <aside
         className={`
           flex h-full w-60 flex-col border-r border-[rgba(255,255,255,0.12)] bg-black
-          /* Below md: fixed drawer overlay */
-          fixed left-0 top-0 z-40
+          /* Below md: fixed drawer overlay — above the global grain overlay (z-[100]) */
+          fixed left-0 top-0 z-[110]
           /* Transition for slide in/out */
           transition-transform duration-300 ease-in-out
           ${isOpen ? "translate-x-0" : "-translate-x-full"}
