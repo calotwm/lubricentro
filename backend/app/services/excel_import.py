@@ -17,6 +17,7 @@ Expected columns (case-insensitive, Spanish or English accepted):
 from __future__ import annotations
 
 import io
+import unicodedata
 from decimal import Decimal, InvalidOperation
 from typing import Optional
 
@@ -38,9 +39,17 @@ _SELL_COLS = {"precio venta", "venta", "selling price", "price", "precio_venta",
 _STOCK_COLS = {"stock", "stock actual", "existencia", "cantidad", "current stock", "stock_actual", "unidades"}
 _MIN_STOCK_COLS = {"stock minimo", "stock min", "min stock", "stock_minimo", "minimo", "min"}
 
+# Header detection: how many non-empty rows to inspect per sheet, and how many
+# columns to show in the error preview when no header row is found.
+_MAX_HEADER_SCAN_ROWS = 30
+_ERROR_PREVIEW_COLS = 10
+
 
 def _norm(s: str) -> str:
-    return s.strip().lower()
+    """Normalize a header cell: drop accents, collapse whitespace, lowercase."""
+    decomposed = unicodedata.normalize("NFKD", s)
+    without_accents = "".join(ch for ch in decomposed if not unicodedata.combining(ch))
+    return " ".join(without_accents.split()).lower()
 
 
 def _find_col(headers: list[str], aliases: set[str]) -> Optional[int]:
@@ -106,18 +115,58 @@ async def import_from_excel(
     db: AsyncSession, file_bytes: bytes
 ) -> dict:
     wb = openpyxl.load_workbook(io.BytesIO(file_bytes), read_only=True, data_only=True)
-    ws = wb.active
 
-    rows = list(ws.iter_rows(values_only=True))
-    if not rows:
-        return {"updated": 0, "created": 0, "skipped": 0, "errors": ["Archivo vacío"]}
-
-    # Detect header row (first non-empty row)
+    # Locate the header row: scan each worksheet in order, checking the first
+    # non-empty rows for a known SKU/name column alias. Real-world price lists
+    # often start with banner/title rows above the actual headers.
+    rows: Optional[list[tuple]] = None
     header_row_idx = 0
-    for i, row in enumerate(rows):
-        if any(cell is not None for cell in row):
-            header_row_idx = i
+    sheet_summaries: list[str] = []
+    saw_any_data = False
+
+    for ws in wb.worksheets:
+        sheet_rows = list(ws.iter_rows(values_only=True))
+        first_non_empty = next(
+            (row for row in sheet_rows if any(c is not None for c in row)), None
+        )
+        saw_any_data = saw_any_data or first_non_empty is not None
+        if first_non_empty is not None:
+            preview = [
+                str(c) if c is not None else ""
+                for c in first_non_empty[:_ERROR_PREVIEW_COLS]
+            ]
+            sheet_summaries.append(f"'{ws.title}' columnas detectadas: {preview}")
+        else:
+            sheet_summaries.append(f"'{ws.title}' sin filas de datos")
+
+        checked = 0
+        for i, row in enumerate(sheet_rows):
+            if not any(c is not None for c in row):
+                continue
+            checked += 1
+            headers = [_norm(str(c)) if c is not None else "" for c in row]
+            if (
+                _find_col(headers, _SKU_COLS) is not None
+                or _find_col(headers, _NAME_COLS) is not None
+            ):
+                rows = sheet_rows
+                header_row_idx = i
+                break
+            if checked >= _MAX_HEADER_SCAN_ROWS:
+                break
+        if rows is not None:
             break
+
+    if rows is None:
+        if not saw_any_data:
+            return {"updated": 0, "created": 0, "skipped": 0, "errors": ["Archivo vacío"]}
+        return {
+            "updated": 0, "created": 0, "skipped": 0,
+            "errors": [
+                "No se encontró columna de Nombre o SKU. "
+                f"Hojas escaneadas: {'; '.join(sheet_summaries)}"
+            ],
+        }
 
     raw_headers = [str(c) if c is not None else "" for c in rows[header_row_idx]]
 
@@ -129,15 +178,6 @@ async def import_from_excel(
     sell_col = _find_col(raw_headers, _SELL_COLS)
     stock_col = _find_col(raw_headers, _STOCK_COLS)
     min_stock_col = _find_col(raw_headers, _MIN_STOCK_COLS)
-
-    if name_col is None and sku_col is None:
-        return {
-            "updated": 0, "created": 0, "skipped": 0,
-            "errors": [
-                f"No se encontró columna de Nombre o SKU. "
-                f"Columnas detectadas: {raw_headers}"
-            ]
-        }
 
     updated = 0
     created = 0
@@ -221,7 +261,12 @@ async def import_from_excel(
         else:
             # Create new product — requires at least a name
             if not name_val:
-                errors.append(f"Fila {row_num}: sin nombre, no se puede crear el producto.")
+                # Only report an error when the row looks like a real product
+                # attempt (code + price). Section banners (e.g. "FILTROS DE
+                # AIRE WEGA") land in the code column without a price, so
+                # treat them as layout noise and skip silently.
+                if sku_val and (cost_val is not None or sell_val is not None):
+                    errors.append(f"Fila {row_num}: sin nombre, no se puede crear el producto.")
                 skipped += 1
                 continue
 
