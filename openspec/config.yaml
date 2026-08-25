@@ -1,0 +1,95 @@
+# OpenSpec SDD configuration — Lubricentro G&G
+schema: spec-driven
+
+context: |
+  Tech stack: FastAPI (Python 3.13, SQLAlchemy 2.0 async, Alembic) + React 19 / Vite / Tailwind v4 / TanStack Query v5.
+  Architecture: backend/ services+routers under /api; frontend SPA served statically by backend in production; 6-table schema.
+  Testing: pytest in backend/tests (asyncio auto mode, in-memory SQLite); frontend has no unit runner (evidence = tsc + vite build).
+  Style: English code/comments/identifiers; Spanish only for user-facing UI copy; conventional commits, no AI attribution.
+  Delivery: GitHub calotwm/lubricentro branch main; deploys via `railway up` (project lubricentro, environment production).
+  Legacy SDD cycles live in sdd/ (read-only history); all NEW changes use this openspec/ store.
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - State deploy impact (merging to main leads to `railway up`)
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+    - UI copy requirements are written in Spanish; code identifiers and comments in English
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+    - Backend tasks follow RED-GREEN-REFACTOR where feasible (strict TDD)
+  apply:
+    guidelines:
+      - Follow existing code patterns (services hold business logic, routers stay thin)
+      - Run backend commands from backend\ using venv\Scripts\python.exe (working directory matters)
+      - ASCII-only output in Python scripts (Windows cp1252 console)
+    tdd: true
+    test_command: 'venv\Scripts\python.exe -m pytest'
+    test_command_cwd: backend
+  verify:
+    test_command: 'venv\Scripts\python.exe -m pytest'
+    test_command_cwd: backend
+    build_command: 'npx tsc --noEmit && npx vite build'
+    build_command_cwd: frontend
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas
+
+testing:
+  strict_tdd_mode: enabled
+  detected: 2026-08-25
+  rationale: >-
+    No strict-TDD marker/config existed at init time; a test runner exists, so the
+    default is strict_tdd: true. Legacy archives confirm backend cycles already ran
+    Strict TDD. Frontend has no JS test runner, so its verification evidence is
+    typecheck + build instead of unit tests.
+  test_runner:
+    framework: pytest + pytest-asyncio (asyncio_mode = auto)
+    command: 'venv\Scripts\python.exe -m pytest'
+    command_cwd: backend
+    suites:
+      backend_core:
+        path: backend\tests
+        tests: 100
+        notes: In-memory SQLite via conftest.py
+      scripts_excel:
+        path: scripts\test_import_excel.py
+        command: '..\backend\venv\Scripts\python.exe -m pytest test_import_excel.py'
+        command_cwd: scripts
+        tests: 16
+  layers:
+    unit:
+      available: true
+      tool: pytest
+    integration:
+      available: true
+      tool: httpx.AsyncClient + in-memory SQLite (FastAPI TestClient-style async)
+    e2e:
+      available: false
+      tool: none
+  coverage:
+    available: false
+    command: ''
+    notes: pytest-cov not installed
+  quality_tools:
+    linter:
+      available: false
+      command: ''
+    type_checker:
+      available: true
+      command: 'npx tsc --noEmit'
+      command_cwd: frontend
+      scope: frontend only (TypeScript)
+    formatter:
+      available: false
+      command: ''
+  build:
+    command: 'npx vite build'
+    command_cwd: frontend
+    output: dist/
